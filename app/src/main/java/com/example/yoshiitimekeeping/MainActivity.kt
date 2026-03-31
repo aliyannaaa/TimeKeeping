@@ -153,12 +153,13 @@ fun ClockInScreen(user: User) {
     var currentTime by remember { mutableStateOf(Calendar.getInstance().time) }
     val timeEntryManager = remember { TimeEntryManager() }
     var isClockedIn by remember { mutableStateOf(false) }
-    var lastEntryStatus by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
-    var showStatusMessage by remember { mutableStateOf(false) }
     var statusMessage by remember { mutableStateOf("") }
+    var showNotification by remember { mutableStateOf(false) }
     var isSuccess by remember { mutableStateOf(false) }
+    var notificationDetails by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val timeFormatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     val dateFormatter = SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault())
@@ -223,7 +224,7 @@ fun ClockInScreen(user: User) {
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Button(
                 onClick = {
@@ -237,28 +238,39 @@ fun ClockInScreen(user: User) {
                             ipAddress = "13131.832.06357"
                         )
 
-                        statusMessage = if (result.success) {
+                        if (result.success) {
                             isClockedIn = !isClockedIn
                             isSuccess = true
-                            "${entryType.name.replace("_", " ")} Successful"
+                            statusMessage = "${entryType.name.replace("_", " ")} Successful"
+                            notificationDetails = buildEntryStatusString(result)
                         } else {
                             isSuccess = false
-                            result.errorMessage ?: "Operation failed"
+                            statusMessage = result.errorMessage ?: "Operation failed"
+                            notificationDetails = ""
                         }
-                        lastEntryStatus = buildEntryStatusString(result)
-                        showStatusMessage = true
+                        
                         isLoading = false
-
-                        // Auto-hide message after 3 seconds
+                        showNotification = true
+                        
+                        // Auto-hide after 5 seconds
                         delay(5000)
-                        showStatusMessage = false
+                        showNotification = false
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(60.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = mainThemeColor),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                enabled = !isLoading
             ) {
-                Text(if (isClockedIn) "Time Out" else "Time In", fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(if (isClockedIn) "Time Out" else "Time In", fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -296,5 +308,67 @@ fun ClockInScreen(user: User) {
                 }
             }
         }
+        
+        // Notification overlay at bottom
+        if (showNotification) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Surface(
+                    color = if (isSuccess) Color(0xFF4CAF50) else Color(0xFFE53935),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    shadowElevation = 8.dp
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = statusMessage,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp
+                                )
+                                if (notificationDetails.isNotEmpty()) {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        text = notificationDetails,
+                                        color = Color.White.copy(alpha = 0.9f),
+                                        fontSize = 13.sp
+                                    )
+                                }
+                            }
+                            
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .background(
+                                        color = Color.White,
+                                        shape = RoundedCornerShape(4.dp)
+                                    )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+private fun buildEntryStatusString(result: com.example.yoshiitimekeeping.data.TimeClockResult): String {
+    return if (result.entry != null) {
+        val time = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(result.entry.timestamp)
+        "Entry ID: ${result.entry.id.take(8)}... at $time"
+    } else {
+        "Error: ${result.errorMessage ?: "Unknown error occurred"}"
     }
 }
