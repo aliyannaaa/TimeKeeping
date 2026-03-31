@@ -22,7 +22,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yoshiitimekeeping.data.TimeEntry
+import com.example.yoshiitimekeeping.data.TimeEntryManager
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -114,7 +117,14 @@ fun LoginScreen(onLoginClick: () -> Unit) {
 @Composable
 fun ClockInScreen() {
     var currentTime by remember { mutableStateOf(Calendar.getInstance().time) }
+    val timeEntryManager = remember { TimeEntryManager() }
     var isClockedIn by remember { mutableStateOf(false) }
+    var lastEntryStatus by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var showStatusMessage by remember { mutableStateOf(false) }
+    var statusMessage by remember { mutableStateOf("") }
+    var isSuccess by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     val timeFormatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     val dateFormatter = SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault())
@@ -170,24 +180,88 @@ fun ClockInScreen() {
                 fontSize = 14.sp,
                 color = Color.Black.copy(alpha = 0.8f),
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.fillMaxWidth(), // Ensures it respects parent centering
+                modifier = Modifier.fillMaxWidth(),
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(40.dp))
 
             Button(
-                onClick = { isClockedIn = !isClockedIn },
+                onClick = {
+                    scope.launch {
+                        isLoading = true
+                        val entryType = if (isClockedIn) TimeEntry.EntryType.TIME_OUT else TimeEntry.EntryType.TIME_IN
+                        val result = timeEntryManager.clockInOut(
+                            entryType = entryType,
+                            employeeId = "EMP001",
+                            location = "Cebu City, Cebu",
+                            ipAddress = "13131.832.06357"
+                        )
+
+                        statusMessage = if (result.success) {
+                            isClockedIn = !isClockedIn
+                            isSuccess = true
+                            "${entryType.name.replace("_", " ")} Successful"
+                        } else {
+                            isSuccess = false
+                            result.errorMessage ?: "Operation failed"
+                        }
+                        lastEntryStatus = buildEntryStatusString(result)
+                        showStatusMessage = true
+                        isLoading = false
+
+                        // Auto-hide message after 3 seconds
+                        delay(5000)
+                        showStatusMessage = false
+                    }
+                },
                 modifier = Modifier.fillMaxWidth().height(60.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = mainThemeColor),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                enabled = !isLoading
             ) {
-                Text(if (isClockedIn) "Time Out" else "Time In", fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(if (isClockedIn) "Time Out" else "Time In", fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                }
             }
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Status bar with Row added to include the icon on the right
+            // Status message feedback
+            if (showStatusMessage) {
+                Surface(
+                    color = if (isSuccess) Color(0xFF4CAF50) else Color(0xFFE53935),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = statusMessage,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                        if (lastEntryStatus.isNotEmpty()) {
+                            Text(
+                                text = lastEntryStatus,
+                                color = Color.White.copy(alpha = 0.9f),
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                        }
+
+                    }
+                }
+                Spacer(modifier = Modifier.height(14.dp))
+            }
+
+            // Status bar with Row for current state indicator
             Surface(
                 color = statusBarBgColor,
                 shape = RoundedCornerShape(12.dp),
@@ -212,8 +286,6 @@ fun ClockInScreen() {
                         )
                     }
 
-                    // YOUR CUSTOM ICON HERE
-                    // Replace 'ic_clock_status' with your actual image file name
                     Image(
                         painter = painterResource(id = R.drawable.stopwatch),
                         contentDescription = "Status Icon",
@@ -222,5 +294,13 @@ fun ClockInScreen() {
                 }
             }
         }
+    }
+}
+
+private fun buildEntryStatusString(result: com.example.yoshiitimekeeping.data.TimeClockResult): String {
+    return if (result.entry != null) {
+        "Entry ID: ${result.entry.id.take(8)}... at ${SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(result.entry.timestamp)}"
+    } else {
+        ""
     }
 }
