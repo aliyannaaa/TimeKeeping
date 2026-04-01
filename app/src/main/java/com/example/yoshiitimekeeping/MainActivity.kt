@@ -26,14 +26,21 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.yoshiitimekeeping.data.TimeEntry
-import com.example.yoshiitimekeeping.data.TimeEntryManager
+//import com.example.yoshiitimekeeping.data.TimeEntryManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import com.example.yoshiitimekeeping.data.MockDatabase // ADD THIS IMPORT
+import com.example.yoshiitimekeeping.data.User         // ADD THIS IMPORT
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLEncoder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.*
 
 class MainActivity : ComponentActivity() {
-    private val loginService: LoginService = MockLoginService()
+    //private val loginService: LoginService = MockLoginService()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +52,7 @@ class MainActivity : ComponentActivity() {
 
                 when (currentScreen) {
                     "login" -> LoginScreen(
-                        loginService = loginService,
+                        //loginService = loginService,
                         onLoginSuccess = { user ->
                             loggedInUser = user
                             currentScreen = "loading"
@@ -83,7 +90,7 @@ fun LoadingScreen(onFinished: () -> Unit) {
 }
 
 @Composable
-fun LoginScreen(loginService: LoginService, onLoginSuccess: (User) -> Unit) {
+fun LoginScreen(onLoginSuccess: (User) -> Unit) { // Removed loginService parameter
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
@@ -98,33 +105,55 @@ fun LoginScreen(loginService: LoginService, onLoginSuccess: (User) -> Unit) {
         ) {
             Text(stringResource(id = R.string.app_title), fontSize = 36.sp, fontWeight = FontWeight.Black, color = Color(0xFF1A46B8))
             Spacer(modifier = Modifier.height(48.dp))
+
             OutlinedTextField(
-                value = email, onValueChange = { email = it },
-                label = { Text(stringResource(id = R.string.email_label)) }, modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp), singleLine = true,
-                enabled = !isLoading
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                value = password, onValueChange = { password = it },
-                label = { Text(stringResource(id = R.string.password_label)) }, modifier = Modifier.fillMaxWidth(),
+                value = email,
+                onValueChange = { email = it },
+                label = { Text(stringResource(id = R.string.email_label)) },
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                visualTransformation = PasswordVisualTransformation(), singleLine = true,
+                singleLine = true,
                 enabled = !isLoading
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text(stringResource(id = R.string.password_label)) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                visualTransformation = PasswordVisualTransformation(),
+                singleLine = true,
+                enabled = !isLoading
+            )
+
             Spacer(modifier = Modifier.height(24.dp))
+
             Button(
                 onClick = {
                     isLoading = true
                     scope.launch {
-                        val result = loginService.login(email, password)
+                        // --- START OF MOCK DATABASE CALL ---
+                        delay(1500) // Simulate the "MySQL Query" time
+
+                        val user = MockDatabase.validateLogin(email, password)
+
                         isLoading = false
-                        when (result) {
-                            is LoginResult.Success -> onLoginSuccess(result.user)
-                            is LoginResult.Failure -> {
-                                Toast.makeText(context, context.getString(R.string.login_failed), Toast.LENGTH_SHORT).show()
-                            }
+
+                        if (user != null) {
+                            // If user is found (not null), proceed to loading screen
+                            onLoginSuccess(user)
+                        } else {
+                            // If null, show a Toast message
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.login_failed),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
+                        // --- END OF MOCK DATABASE CALL ---
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
@@ -139,6 +168,7 @@ fun LoginScreen(loginService: LoginService, onLoginSuccess: (User) -> Unit) {
                 }
             }
         }
+
         Text(
             text = stringResource(id = R.string.copyright),
             fontSize = 10.sp,
@@ -151,15 +181,43 @@ fun LoginScreen(loginService: LoginService, onLoginSuccess: (User) -> Unit) {
 @Composable
 fun ClockInScreen(user: User) {
     var currentTime by remember { mutableStateOf(Calendar.getInstance().time) }
-    val timeEntryManager = remember { TimeEntryManager() }
-    var isClockedIn by remember { mutableStateOf(false) }
+    val timeEntryManager = MockDatabase.timeEntryManager
+    var isClockedIn by remember{
+        mutableStateOf(timeEntryManager.getLastEntry(user.email)?.entryType == TimeEntry.EntryType.TIME_IN) }
     var isLoading by remember { mutableStateOf(false) }
     var statusMessage by remember { mutableStateOf("") }
     var showNotification by remember { mutableStateOf(false) }
     var isSuccess by remember { mutableStateOf(false) }
     var notificationDetails by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
+    //val context = LocalContext.current
+
+// --- HELPER FUNCTION FOR MYSQL SYNC ---
+    suspend fun syncToMySQL(entry: TimeEntry, email: String, type: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                val url = URL("http://10.0.2.2/yoshii/save_attendance.php")
+                val conn = url.openConnection() as HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.doOutput = true
+
+                // Formatting data for the PHP $_POST variables
+                val postData = "employee_id=${URLEncoder.encode(email, "UTF-8")}" +
+                        "&timestamp=${entry.timestamp}" +
+                        "&entry_type=${type}"
+                        //"&location=${URLEncoder.encode("Cebu City, Cebu", "UTF-8")}" +
+                        //"&ip_address=10.0.2.2"
+
+                conn.outputStream.use { it.write(postData.toByteArray()) }
+
+                val response = conn.inputStream.bufferedReader().use { it.readText() }
+                println("MYSQL_SYNC_RESPONSE: $response")
+            } catch (e: Exception) {
+                println("MYSQL_SYNC_ERROR: ${e.message}")
+                e.printStackTrace()
+            }
+        }
+    }
 
     val timeFormatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     val dateFormatter = SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault())
@@ -231,14 +289,18 @@ fun ClockInScreen(user: User) {
                     scope.launch {
                         isLoading = true
                         val entryType = if (isClockedIn) TimeEntry.EntryType.TIME_OUT else TimeEntry.EntryType.TIME_IN
+
                         val result = timeEntryManager.clockInOut(
                             entryType = entryType,
-                            employeeId = "EMP001",
-                            location = "Cebu City, Cebu",
-                            ipAddress = "13131.832.06357"
+                            employeeId = user.email,
+                            //location = "Cebu City, Cebu",
+                            //ipAddress = "13131.832.06357"
                         )
-
                         if (result.success) {
+                            //println("DEBUG: Log saved for ${user.email} at ${result.entry?.timestamp}")
+                            result.entry?.let { entry ->
+                                syncToMySQL(entry, user.email, entryType.name)
+                            }
                             isClockedIn = !isClockedIn
                             isSuccess = true
                             statusMessage = "${entryType.name.replace("_", " ")} Successful"

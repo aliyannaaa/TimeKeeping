@@ -22,9 +22,9 @@ class TimeEntryManager {
     suspend fun clockInOut(
         entryType: TimeEntry.EntryType,
         employeeId: String,
-        location: String,
-        ipAddress: String,
-        timeoutMs: Long = 5000
+        //location: String,
+        //ipAddress: String,
+        //timeoutMs: Long = 5000
     ): TimeClockResult {
         return mutex.withLock {
             try {
@@ -44,8 +44,8 @@ class TimeEntryManager {
                     entryType = entryType,
                     status = TimeEntry.EntryStatus.SUCCESS,
                     employeeId = employeeId,
-                    location = location,
-                    ipAddress = ipAddress
+                    //location = location,
+                    //ipAddress = ipAddress
                 )
 
                 // Add to all indexes for optimized lookups

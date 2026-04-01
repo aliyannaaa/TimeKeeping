@@ -20,6 +20,7 @@ interface LoginService {
 class MockLoginService : LoginService {
     private val mockUsers = listOf(
         User("Gerard Mamon", "gerard@yoshii.com", "UI/UX Designer"),
+        User("Kyla Alianna", "aliyanna@yoshii.com", "Wishzen"),
         User("Admin User", "admin@yoshii.com", "System Administrator")
     )
 

@@ -13,3 +13,9 @@
 .externalNativeBuild
 .cxx
 local.properties
+/app/src/main/java/com/example/yoshiitimekeeping/ui/viewmodels/AttendanceViewModel.kt
+/.idea/compiler.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/kotlinc.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/vcs.xml

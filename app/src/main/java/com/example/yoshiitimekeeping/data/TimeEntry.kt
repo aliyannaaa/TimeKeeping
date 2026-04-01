@@ -12,8 +12,8 @@ data class TimeEntry(
     val entryType: EntryType,
     val status: EntryStatus,
     val employeeId: String = "",
-    val location: String = "",
-    val ipAddress: String = "",
+    //val location: String = "",
+    //val ipAddress: String = "",
     val errorMessage: String? = null,
     val retryCount: Int = 0,
     val synced: Boolean = false,
@@ -24,7 +24,7 @@ data class TimeEntry(
     }
 
     enum class EntryStatus {
-        SUCCESS, FAILED, PENDING, TIMEOUT
+        SUCCESS, FAILED, TIMEOUT
     }
 
     /**
@@ -43,7 +43,7 @@ data class TimeEntry(
     fun validate(): ValidationResult {
         return when {
             employeeId.isBlank() -> ValidationResult(false, "Employee ID is required")
-            location.isBlank() -> ValidationResult(false, "Location is required")
+            //location.isBlank() -> ValidationResult(false, "Location is required")
             retryCount > 5 -> ValidationResult(false, "Maximum retry attempts exceeded")
             status == EntryStatus.TIMEOUT -> ValidationResult(false, "Entry timed out")
             else -> ValidationResult(true, "Valid entry")
