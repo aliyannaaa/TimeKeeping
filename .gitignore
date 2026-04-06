@@ -13,3 +13,16 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Node.js / mock-backend
+mock-backend/node_modules/
+mock-backend/.env
+mock-backend/.DS_Store
+mock-backend/npm-debug.log
+mock-backend/yarn-error.log
+mock-backend/.vscode/
+mock-backend/dist/
+mock-backend/.cache/
+mock-backend/.next/
+mock-backend/.turbo/
+mock-backend/.eslintcache
+mock-backend/coverage/

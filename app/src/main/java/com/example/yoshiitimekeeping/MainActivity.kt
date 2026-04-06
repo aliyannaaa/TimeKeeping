@@ -25,15 +25,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.yoshiitimekeeping.data.TimeEntry
-import com.example.yoshiitimekeeping.data.TimeEntryManager
+import com.example.yoshiitimekeeping.database.ApiClient
+import com.example.yoshiitimekeeping.database.TimeInOut
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : ComponentActivity() {
-    private val loginService: LoginService = MockLoginService()
+    private val loginService: LoginService = BackendLoginService(ApiClient.repository())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,6 +86,9 @@ fun LoadingScreen(onFinished: () -> Unit) {
 fun LoginScreen(loginService: LoginService, onLoginSuccess: (User) -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var jobTitle by remember { mutableStateOf("") }
+    var isRegisterMode by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -98,6 +101,28 @@ fun LoginScreen(loginService: LoginService, onLoginSuccess: (User) -> Unit) {
         ) {
             Text(stringResource(id = R.string.app_title), fontSize = 36.sp, fontWeight = FontWeight.Black, color = Color(0xFF1A46B8))
             Spacer(modifier = Modifier.height(48.dp))
+            if (isRegisterMode) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    enabled = !isLoading
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = jobTitle,
+                    onValueChange = { jobTitle = it },
+                    label = { Text("Job Title") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    enabled = !isLoading
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
             OutlinedTextField(
                 value = email, onValueChange = { email = it },
                 label = { Text(stringResource(id = R.string.email_label)) }, modifier = Modifier.fillMaxWidth(),
@@ -117,12 +142,16 @@ fun LoginScreen(loginService: LoginService, onLoginSuccess: (User) -> Unit) {
                 onClick = {
                     isLoading = true
                     scope.launch {
-                        val result = loginService.login(email, password)
+                        val result = if (isRegisterMode) {
+                            loginService.register(email, password, name, jobTitle)
+                        } else {
+                            loginService.login(email, password)
+                        }
                         isLoading = false
                         when (result) {
                             is LoginResult.Success -> onLoginSuccess(result.user)
                             is LoginResult.Failure -> {
-                                Toast.makeText(context, context.getString(R.string.login_failed), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -135,8 +164,29 @@ fun LoginScreen(loginService: LoginService, onLoginSuccess: (User) -> Unit) {
                 if (isLoading) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 } else {
-                    Text(stringResource(id = R.string.login_button), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = if (isRegisterMode) "Create Account" else stringResource(id = R.string.login_button),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            TextButton(
+                onClick = {
+                    isRegisterMode = !isRegisterMode
+                    if (!isRegisterMode) {
+                        name = ""
+                        jobTitle = ""
+                    }
+                },
+                enabled = !isLoading
+            ) {
+                Text(
+                    text = if (isRegisterMode) "Back to Login" else "No account yet? Create one",
+                    color = Color(0xFF1A46B8),
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
         Text(
@@ -151,8 +201,9 @@ fun LoginScreen(loginService: LoginService, onLoginSuccess: (User) -> Unit) {
 @Composable
 fun ClockInScreen(user: User) {
     var currentTime by remember { mutableStateOf(Calendar.getInstance().time) }
-    val timeEntryManager = remember { TimeEntryManager() }
+    val repository = remember { ApiClient.repository() }
     var isClockedIn by remember { mutableStateOf(false) }
+    var currentUserId by remember { mutableStateOf<Int?>(null) }
     var isLoading by remember { mutableStateOf(false) }
     var statusMessage by remember { mutableStateOf("") }
     var showNotification by remember { mutableStateOf(false) }
@@ -163,11 +214,35 @@ fun ClockInScreen(user: User) {
 
     val timeFormatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     val dateFormatter = SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault())
+    val locationLabel = stringResource(id = R.string.location_info)
+    val locationForStorage = remember(locationLabel) { sanitizeLocationForStorage(locationLabel) }
 
     LaunchedEffect(Unit) {
         while (true) {
             currentTime = Calendar.getInstance().time
             delay(1000)
+        }
+    }
+
+    LaunchedEffect(user.email) {
+        val usersResult = repository.getAllUsers()
+        usersResult.onSuccess { users ->
+            val normalizedEmail = user.email.trim()
+            val dbUser = users.firstOrNull { it.username.trim().equals(normalizedEmail, ignoreCase = true) }
+            if (dbUser?.id != null) {
+                currentUserId = dbUser.id
+                repository.isUserClockedIn(dbUser.id).onSuccess { isClockedIn = it }
+            } else {
+                isSuccess = false
+                statusMessage = "User not linked to database"
+                notificationDetails = "No account found for $normalizedEmail. Please create an account from login screen."
+                showNotification = true
+            }
+        }.onFailure {
+            isSuccess = false
+            statusMessage = "Failed to load user from backend"
+            notificationDetails = it.message ?: "Unknown error"
+            showNotification = true
         }
     }
 
@@ -216,7 +291,7 @@ fun ClockInScreen(user: User) {
             }
             Spacer(modifier = Modifier.height(32.dp))
             Text(
-                text = stringResource(id = R.string.location_info),
+                text = locationLabel,
                 fontSize = 14.sp,
                 color = Color.Black.copy(alpha = 0.8f),
                 fontWeight = FontWeight.SemiBold,
@@ -230,23 +305,38 @@ fun ClockInScreen(user: User) {
                 onClick = {
                     scope.launch {
                         isLoading = true
-                        val entryType = if (isClockedIn) TimeEntry.EntryType.TIME_OUT else TimeEntry.EntryType.TIME_IN
-                        val result = timeEntryManager.clockInOut(
-                            entryType = entryType,
-                            employeeId = "EMP001",
-                            location = "Cebu City, Cebu",
-                            ipAddress = "13131.832.06357"
-                        )
-
-                        if (result.success) {
-                            isClockedIn = !isClockedIn
-                            isSuccess = true
-                            statusMessage = "${entryType.name.replace("_", " ")} Successful"
-                            notificationDetails = buildEntryStatusString(result)
-                        } else {
+                        val userId = currentUserId
+                        if (userId == null) {
                             isSuccess = false
-                            statusMessage = result.errorMessage ?: "Operation failed"
-                            notificationDetails = ""
+                            statusMessage = "User not linked to database"
+                            notificationDetails = "No matching backend employee record for ${user.email}"
+                            isLoading = false
+                            showNotification = true
+                            return@launch
+                        }
+
+                        if (!isClockedIn) {
+                            repository.clockIn(userId, locationTimeIn = locationForStorage).onSuccess { record ->
+                                isClockedIn = true
+                                isSuccess = true
+                                statusMessage = "TIME IN Successful"
+                                notificationDetails = buildEntryStatusString(record)
+                            }.onFailure {
+                                isSuccess = false
+                                statusMessage = "Time In failed"
+                                notificationDetails = it.message ?: "Unknown error"
+                            }
+                        } else {
+                            repository.clockOut(userId, locationTimeOut = locationForStorage).onSuccess { record ->
+                                isClockedIn = false
+                                isSuccess = true
+                                statusMessage = "TIME OUT Successful"
+                                notificationDetails = buildEntryStatusString(record)
+                            }.onFailure {
+                                isSuccess = false
+                                statusMessage = "Time Out failed"
+                                notificationDetails = it.message ?: "Unknown error"
+                            }
                         }
                         
                         isLoading = false
@@ -364,11 +454,23 @@ fun ClockInScreen(user: User) {
 
 
 
-private fun buildEntryStatusString(result: com.example.yoshiitimekeeping.data.TimeClockResult): String {
-    return if (result.entry != null) {
-        val time = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(result.entry.timestamp)
-        "Entry ID: ${result.entry.id.take(8)}... at $time"
-    } else {
-        "Error: ${result.errorMessage ?: "Unknown error occurred"}"
-    }
+private fun buildEntryStatusString(entry: TimeInOut): String {
+    val readableTime = entry.time_out ?: entry.time_in
+        ?: entry.time_in_ms?.let { millis ->
+            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date(millis))
+        }
+
+    val location = entry.location_time_out ?: entry.location_time_in
+
+    val parts = mutableListOf<String>()
+    entry.id?.let { parts.add("Entry ID: $it") }
+    readableTime?.let { parts.add("At: $it") }
+    location?.takeIf { it.isNotBlank() }?.let { parts.add("Location: $it") }
+
+    return if (parts.isNotEmpty()) parts.joinToString(" | ") else "Record saved"
+}
+
+private fun sanitizeLocationForStorage(rawLocation: String): String {
+    val withoutIp = rawLocation.substringBefore(" IP", rawLocation).trim()
+    return withoutIp.ifEmpty { rawLocation.trim() }
 }
