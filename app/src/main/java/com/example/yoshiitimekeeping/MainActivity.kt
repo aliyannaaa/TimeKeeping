@@ -30,6 +30,13 @@ import com.example.yoshiitimekeeping.database.TimeInOut
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import com.example.yoshiitimekeeping.data.MockDatabase // ADD THIS IMPORT
+import com.example.yoshiitimekeeping.data.User         // ADD THIS IMPORT
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLEncoder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.*
 
 class MainActivity : ComponentActivity() {
@@ -45,7 +52,7 @@ class MainActivity : ComponentActivity() {
 
                 when (currentScreen) {
                     "login" -> LoginScreen(
-                        loginService = loginService,
+                        //loginService = loginService,
                         onLoginSuccess = { user ->
                             loggedInUser = user
                             currentScreen = "loading"
@@ -83,7 +90,7 @@ fun LoadingScreen(onFinished: () -> Unit) {
 }
 
 @Composable
-fun LoginScreen(loginService: LoginService, onLoginSuccess: (User) -> Unit) {
+fun LoginScreen(onLoginSuccess: (User) -> Unit) { // Removed loginService parameter
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
@@ -124,20 +131,30 @@ fun LoginScreen(loginService: LoginService, onLoginSuccess: (User) -> Unit) {
                 Spacer(modifier = Modifier.height(16.dp))
             }
             OutlinedTextField(
-                value = email, onValueChange = { email = it },
-                label = { Text(stringResource(id = R.string.email_label)) }, modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp), singleLine = true,
-                enabled = !isLoading
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                value = password, onValueChange = { password = it },
-                label = { Text(stringResource(id = R.string.password_label)) }, modifier = Modifier.fillMaxWidth(),
+                value = email,
+                onValueChange = { email = it },
+                label = { Text(stringResource(id = R.string.email_label)) },
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                visualTransformation = PasswordVisualTransformation(), singleLine = true,
+                singleLine = true,
                 enabled = !isLoading
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text(stringResource(id = R.string.password_label)) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                visualTransformation = PasswordVisualTransformation(),
+                singleLine = true,
+                enabled = !isLoading
+            )
+
             Spacer(modifier = Modifier.height(24.dp))
+
             Button(
                 onClick = {
                     isLoading = true
@@ -210,7 +227,34 @@ fun ClockInScreen(user: User) {
     var isSuccess by remember { mutableStateOf(false) }
     var notificationDetails by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
+    //val context = LocalContext.current
+
+// --- HELPER FUNCTION FOR MYSQL SYNC ---
+    suspend fun syncToMySQL(entry: TimeEntry, email: String, type: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                val url = URL("http://10.0.2.2/yoshii/save_attendance.php")
+                val conn = url.openConnection() as HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.doOutput = true
+
+                // Formatting data for the PHP $_POST variables
+                val postData = "employee_id=${URLEncoder.encode(email, "UTF-8")}" +
+                        "&timestamp=${entry.timestamp}" +
+                        "&entry_type=${type}"
+                        //"&location=${URLEncoder.encode("Cebu City, Cebu", "UTF-8")}" +
+                        //"&ip_address=10.0.2.2"
+
+                conn.outputStream.use { it.write(postData.toByteArray()) }
+
+                val response = conn.inputStream.bufferedReader().use { it.readText() }
+                println("MYSQL_SYNC_RESPONSE: $response")
+            } catch (e: Exception) {
+                println("MYSQL_SYNC_ERROR: ${e.message}")
+                e.printStackTrace()
+            }
+        }
+    }
 
     val timeFormatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     val dateFormatter = SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault())
