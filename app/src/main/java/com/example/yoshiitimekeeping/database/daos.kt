@@ -3,7 +3,6 @@ package com.example.yoshiitimekeeping.database
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
-import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -20,27 +19,34 @@ data class Credentials(
 data class TimeInOut(
     val id: String? = null,
     val user_id: Int,
-    val time_in: String? = null,
-    val time_out: String? = null,
-    val time_in_ms: Long? = null,
-    val time_out_ms: Long? = null,
+    val entry_time: String? = null,
+    val entry_time_ms: Long? = null,
+    val entry_type: Int = 0,
     val created_date: String? = null,
     val modified_date: String? = null,
     val created_date_ms: Long? = null,
     val modified_date_ms: Long? = null,
-    val location_time_in: String? = null,
-    val location_time_out: String? = null
-)
-
-data class ClockInRequest(
-    val user_id: Int,
-    val time_in: Long,
     val location_time_in: String? = null
 )
 
-data class ClockOutRequest(
-    val time_out: Long,
-    val location_time_out: String? = null
+data class ClockStateResponse(
+    val user_id: Int,
+    val clocked_in: Boolean,
+    val last_record: TimeInOut? = null
+)
+
+data class LogTimeRequest(
+    val user_id: Int,
+    val event_time: Long,
+    val action: String,
+    val location_time_in: String? = null
+)
+
+data class LogTimeResponse(
+    val record: TimeInOut,
+    val overridden: Boolean = false,
+    val notice: String? = null,
+    val clocked_in: Boolean = false
 )
 
 // Retrofit API interface for backend interaction
@@ -60,13 +66,10 @@ interface TimekeeperApi {
     suspend fun getAllTimeRecords(@Query("user_id") userId: Int? = null): List<TimeInOut>
 
     @GET("/timeinout/active/{userId}")
-    suspend fun getActiveClockInRecord(@Path("userId") userId: Int): TimeInOut?
+    suspend fun getClockState(@Path("userId") userId: Int): ClockStateResponse
 
-    @POST("/timeinout")
-    suspend fun clockIn(@Body body: ClockInRequest): TimeInOut
-
-    @PUT("/timeinout/{id}/clockout")
-    suspend fun clockOut(@Path("id") id: String, @Body body: ClockOutRequest): TimeInOut
+    @POST("/timeinout/log")
+    suspend fun logTime(@Body body: LogTimeRequest): LogTimeResponse
 }
 
 // Constraint and index handling must be enforced in backend API + MySQL schema.

@@ -4,8 +4,9 @@ import com.example.yoshiitimekeeping.database.TimekeeperRepository
 import kotlinx.coroutines.delay
 
 data class User(
+    val employeeId: Int? = null,
     val name: String,
-    val email: String,
+    val loginId: String,
     val jobTitle: String
 )
 
@@ -21,9 +22,9 @@ interface LoginService {
 
 class MockLoginService : LoginService {
     private val mockUsers = mutableListOf(
-        User("Gerard Mamon", "gerard@yoshii.com", "UI/UX Designer"),
-        User("Kyla Alianna", "aliyanna@yoshii.com", "Wishzen"),
-        User("Admin User", "admin@yoshii.com", "System Administrator")
+        User(employeeId = 1, name = "Gerard Mamon", loginId = "gerard@yoshii.com", jobTitle = "UI/UX Designer"),
+        User(employeeId = 2, name = "Kyla Alianna", loginId = "aliyanna@yoshii.com", jobTitle = "Wishzen"),
+        User(employeeId = 3, name = "Admin User", loginId = "admin@yoshii.com", jobTitle = "System Administrator")
     )
 
     private val passwordsByEmail = mutableMapOf(
@@ -35,14 +36,14 @@ class MockLoginService : LoginService {
         // Simulate network delay
         delay(1500)
 
-        val normalizedEmail = email.trim().lowercase()
-        val user = mockUsers.find { it.email.equals(normalizedEmail, ignoreCase = true) }
-        val knownPassword = passwordsByEmail[normalizedEmail]
+        val normalizedIdentifier = email.trim().lowercase()
+        val user = mockUsers.find { it.loginId.equals(normalizedIdentifier, ignoreCase = true) }
+        val knownPassword = passwordsByEmail[normalizedIdentifier]
 
         return if (user != null && knownPassword == password) {
             LoginResult.Success(user)
         } else {
-            LoginResult.Failure("Invalid email or password")
+            LoginResult.Failure("Invalid email/employee ID or password")
         }
     }
 
@@ -62,7 +63,7 @@ class MockLoginService : LoginService {
 
         val safeName = name.trim().ifEmpty { normalizedEmail.substringBefore('@') }
         val safeJobTitle = jobTitle.trim().ifEmpty { "No position set" }
-        val user = User(name = safeName, email = normalizedEmail, jobTitle = safeJobTitle)
+        val user = User(name = safeName, loginId = normalizedEmail, jobTitle = safeJobTitle)
 
         mockUsers.add(user)
         passwordsByEmail[normalizedEmail] = password
@@ -76,9 +77,9 @@ class BackendLoginService(
 ) : LoginService {
 
     override suspend fun login(email: String, password: String): LoginResult {
-        val normalizedEmail = email.trim().lowercase()
-        if (!normalizedEmail.contains('@')) {
-            return LoginResult.Failure("Please provide a valid email address")
+        val normalizedIdentifier = email.trim()
+        if (normalizedIdentifier.isBlank()) {
+            return LoginResult.Failure("Please provide your email or employee ID")
         }
         if (password.isBlank()) {
             return LoginResult.Failure("Password is required")
@@ -90,7 +91,9 @@ class BackendLoginService(
         }
 
         val matched = users.firstOrNull { dbUser ->
-            dbUser.username.trim().equals(normalizedEmail, ignoreCase = true)
+            dbUser.username.trim().equals(normalizedIdentifier, ignoreCase = true)
+                || dbUser.email?.trim()?.equals(normalizedIdentifier, ignoreCase = true) == true
+                || dbUser.id?.toString() == normalizedIdentifier
         } ?: return LoginResult.Failure("Account not found. Please create one first.")
 
         if (matched.password != password) {
@@ -98,15 +101,17 @@ class BackendLoginService(
         }
 
         val displayName = matched.full_name?.trim()?.takeIf { it.isNotEmpty() }
-            ?: normalizedEmail.substringBefore('@').replaceFirstChar { c -> c.uppercase() }
+            ?: matched.username.trim().substringBefore('@').replaceFirstChar { c -> c.uppercase() }
         val displayJobTitle = matched.employee_position?.trim()?.takeIf { it.isNotEmpty() }
             ?: "No position set"
-        val storedEmail = matched.email?.trim()?.takeIf { it.isNotEmpty() } ?: normalizedEmail
+        val storedIdentifier = matched.email?.trim()?.takeIf { it.isNotEmpty() }
+            ?: matched.username.trim()
 
         return LoginResult.Success(
             User(
+                employeeId = matched.id,
                 name = displayName,
-                email = storedEmail,
+                loginId = storedIdentifier,
                 jobTitle = displayJobTitle
             )
         )
@@ -145,8 +150,9 @@ class BackendLoginService(
 
         return LoginResult.Success(
             User(
+                employeeId = created.id,
                 name = safeName,
-                email = safeEmail,
+                loginId = safeEmail,
                 jobTitle = safeJobTitle
             )
         )

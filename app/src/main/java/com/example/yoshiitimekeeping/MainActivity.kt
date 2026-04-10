@@ -30,13 +30,6 @@ import com.example.yoshiitimekeeping.database.TimeInOut
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import com.example.yoshiitimekeeping.data.MockDatabase // ADD THIS IMPORT
-import com.example.yoshiitimekeeping.data.User         // ADD THIS IMPORT
-import java.net.HttpURLConnection
-import java.net.URL
-import java.net.URLEncoder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.util.*
 
 class MainActivity : ComponentActivity() {
@@ -52,7 +45,7 @@ class MainActivity : ComponentActivity() {
 
                 when (currentScreen) {
                     "login" -> LoginScreen(
-                        //loginService = loginService,
+                        loginService = loginService,
                         onLoginSuccess = { user ->
                             loggedInUser = user
                             currentScreen = "loading"
@@ -90,7 +83,10 @@ fun LoadingScreen(onFinished: () -> Unit) {
 }
 
 @Composable
-fun LoginScreen(onLoginSuccess: (User) -> Unit) { // Removed loginService parameter
+fun LoginScreen(
+    loginService: LoginService,
+    onLoginSuccess: (User) -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
@@ -220,41 +216,14 @@ fun ClockInScreen(user: User) {
     var currentTime by remember { mutableStateOf(Calendar.getInstance().time) }
     val repository = remember { ApiClient.repository() }
     var isClockedIn by remember { mutableStateOf(false) }
-    var currentUserId by remember { mutableStateOf<Int?>(null) }
+    var currentUserId by remember { mutableStateOf(user.employeeId) }
     var isLoading by remember { mutableStateOf(false) }
     var statusMessage by remember { mutableStateOf("") }
     var showNotification by remember { mutableStateOf(false) }
     var isSuccess by remember { mutableStateOf(false) }
     var notificationDetails by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
-    //val context = LocalContext.current
-
-// --- HELPER FUNCTION FOR MYSQL SYNC ---
-    suspend fun syncToMySQL(entry: TimeEntry, email: String, type: String) {
-        withContext(Dispatchers.IO) {
-            try {
-                val url = URL("http://10.0.2.2/yoshii/save_attendance.php")
-                val conn = url.openConnection() as HttpURLConnection
-                conn.requestMethod = "POST"
-                conn.doOutput = true
-
-                // Formatting data for the PHP $_POST variables
-                val postData = "employee_id=${URLEncoder.encode(email, "UTF-8")}" +
-                        "&timestamp=${entry.timestamp}" +
-                        "&entry_type=${type}"
-                        //"&location=${URLEncoder.encode("Cebu City, Cebu", "UTF-8")}" +
-                        //"&ip_address=10.0.2.2"
-
-                conn.outputStream.use { it.write(postData.toByteArray()) }
-
-                val response = conn.inputStream.bufferedReader().use { it.readText() }
-                println("MYSQL_SYNC_RESPONSE: $response")
-            } catch (e: Exception) {
-                println("MYSQL_SYNC_ERROR: ${e.message}")
-                e.printStackTrace()
-            }
-        }
-    }
+    val context = LocalContext.current
 
     val timeFormatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     val dateFormatter = SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault())
@@ -268,18 +237,29 @@ fun ClockInScreen(user: User) {
         }
     }
 
-    LaunchedEffect(user.email) {
+    LaunchedEffect(user.employeeId, user.loginId) {
+        val knownUserId = user.employeeId
+        if (knownUserId != null) {
+            currentUserId = knownUserId
+            repository.isUserClockedIn(knownUserId).onSuccess { isClockedIn = it }
+            return@LaunchedEffect
+        }
+
         val usersResult = repository.getAllUsers()
         usersResult.onSuccess { users ->
-            val normalizedEmail = user.email.trim()
-            val dbUser = users.firstOrNull { it.username.trim().equals(normalizedEmail, ignoreCase = true) }
+            val normalizedIdentifier = user.loginId.trim()
+            val dbUser = users.firstOrNull {
+                it.username.trim().equals(normalizedIdentifier, ignoreCase = true)
+                    || it.email?.trim()?.equals(normalizedIdentifier, ignoreCase = true) == true
+                    || it.id?.toString() == normalizedIdentifier
+            }
             if (dbUser?.id != null) {
                 currentUserId = dbUser.id
                 repository.isUserClockedIn(dbUser.id).onSuccess { isClockedIn = it }
             } else {
                 isSuccess = false
                 statusMessage = "User not linked to database"
-                notificationDetails = "No account found for $normalizedEmail. Please create an account from login screen."
+                notificationDetails = "No account found for $normalizedIdentifier. Please create an account from login screen."
                 showNotification = true
             }
         }.onFailure {
@@ -353,29 +333,35 @@ fun ClockInScreen(user: User) {
                         if (userId == null) {
                             isSuccess = false
                             statusMessage = "User not linked to database"
-                            notificationDetails = "No matching backend employee record for ${user.email}"
+                            notificationDetails = "No matching backend employee record for ${user.loginId}"
                             isLoading = false
                             showNotification = true
                             return@launch
                         }
 
                         if (!isClockedIn) {
-                            repository.clockIn(userId, locationTimeIn = locationForStorage).onSuccess { record ->
-                                isClockedIn = true
+                            repository.clockIn(userId, locationTimeIn = locationForStorage).onSuccess { response ->
+                                isClockedIn = response.clocked_in
                                 isSuccess = true
-                                statusMessage = "TIME IN Successful"
-                                notificationDetails = buildEntryStatusString(record)
+                                statusMessage = if (response.overridden) "TIME IN Updated" else "TIME IN Successful"
+                                notificationDetails = buildEntryStatusString(response.record)
+                                response.notice?.takeIf { it.isNotBlank() }?.let { notice ->
+                                    Toast.makeText(context, notice, Toast.LENGTH_SHORT).show()
+                                }
                             }.onFailure {
                                 isSuccess = false
                                 statusMessage = "Time In failed"
                                 notificationDetails = it.message ?: "Unknown error"
                             }
                         } else {
-                            repository.clockOut(userId, locationTimeOut = locationForStorage).onSuccess { record ->
-                                isClockedIn = false
+                            repository.clockOut(userId, locationTimeIn = locationForStorage).onSuccess { response ->
+                                isClockedIn = response.clocked_in
                                 isSuccess = true
-                                statusMessage = "TIME OUT Successful"
-                                notificationDetails = buildEntryStatusString(record)
+                                statusMessage = if (response.overridden) "TIME OUT Updated" else "TIME OUT Successful"
+                                notificationDetails = buildEntryStatusString(response.record)
+                                response.notice?.takeIf { it.isNotBlank() }?.let { notice ->
+                                    Toast.makeText(context, notice, Toast.LENGTH_SHORT).show()
+                                }
                             }.onFailure {
                                 isSuccess = false
                                 statusMessage = "Time Out failed"
@@ -499,15 +485,23 @@ fun ClockInScreen(user: User) {
 
 
 private fun buildEntryStatusString(entry: TimeInOut): String {
-    val readableTime = entry.time_out ?: entry.time_in
-        ?: entry.time_in_ms?.let { millis ->
+    val readableTime = entry.entry_time
+        ?: entry.entry_time_ms?.let { millis ->
             SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date(millis))
         }
 
-    val location = entry.location_time_out ?: entry.location_time_in
+    val location = entry.location_time_in
+    val entryTypeLabel = when (entry.entry_type) {
+        1 -> "Time In"
+        2 -> "Time Out"
+        3 -> "Overtime In"
+        4 -> "Overtime Out"
+        else -> "Unknown"
+    }
 
     val parts = mutableListOf<String>()
     entry.id?.let { parts.add("Entry ID: $it") }
+    parts.add("Type: $entryTypeLabel")
     readableTime?.let { parts.add("At: $it") }
     location?.takeIf { it.isNotBlank() }?.let { parts.add("Location: $it") }
 

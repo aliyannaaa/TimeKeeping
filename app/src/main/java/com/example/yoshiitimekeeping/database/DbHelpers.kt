@@ -132,12 +132,11 @@ object TimeUtils {
 object DbHelpers {
     
     /**
-     * Calculate working hours between two timestamps
-     * Excludes null time_out values
+     * Calculate working hours between two timestamps.
      */
-    fun calculateHours(timeInMs: Long, timeOutMs: Long?): Double {
-        if (timeOutMs == null) return 0.0
-        val durationMs = timeOutMs - timeInMs
+    fun calculateHours(startMs: Long, endMs: Long?): Double {
+        if (endMs == null) return 0.0
+        val durationMs = endMs - startMs
         return durationMs / (1000.0 * 60.0 * 60.0) // Convert to hours
     }
     
@@ -176,9 +175,12 @@ object DbHelpers {
  * Extension function for TimeInOut to get elapsed time
  */
 fun TimeInOut.getElapsedTime(): Long {
-    val startTimeMs = time_in_ms ?: return 0L
-    val endTimeMs = time_out_ms ?: System.currentTimeMillis()
-    return endTimeMs - startTimeMs
+    return if (entry_type == 1 || entry_type == 3) {
+        val startTimeMs = entry_time_ms ?: return 0L
+        System.currentTimeMillis() - startTimeMs
+    } else {
+        0L
+    }
 }
 
 /**
@@ -199,7 +201,7 @@ fun TimeInOut.getFormattedDuration(): String {
  * Extension function for TimeInOut to check if it's an active record
  */
 fun TimeInOut.isActive(): Boolean {
-    return time_out_ms == null
+    return entry_type == 1 || entry_type == 3
 }
 
 /**
@@ -210,7 +212,7 @@ fun TimeInOut.getConstraintMap(): Map<String, Any> {
     return mapOf<String, Any>(
         "id" to (id ?: ""),
         "user_id" to user_id,
-        "time_in_ms" to (time_in_ms ?: 0L),
-        "has_time_out" to (time_out_ms != null)
+        "entry_time_ms" to (entry_time_ms ?: 0L),
+        "entry_type" to entry_type
     )
 }

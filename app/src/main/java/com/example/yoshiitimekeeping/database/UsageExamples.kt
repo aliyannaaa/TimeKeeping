@@ -15,8 +15,8 @@ suspend fun exampleRegisterUser(repo: TimekeeperRepository) {
 
 suspend fun exampleClockIn(repo: TimekeeperRepository, userId: Int) {
     val result = repo.clockIn(userId)
-    result.onSuccess { record ->
-        println("Clock-in record created with id=${record.id}")
+    result.onSuccess { response ->
+        println("Clock-in record created with id=${response.record.id}, overridden=${response.overridden}")
     }.onFailure {
         println("Clock-in failed: ${it.message}")
     }
@@ -24,8 +24,8 @@ suspend fun exampleClockIn(repo: TimekeeperRepository, userId: Int) {
 
 suspend fun exampleClockOut(repo: TimekeeperRepository, userId: Int) {
     val result = repo.clockOut(userId)
-    result.onSuccess { record ->
-        println("Clock-out saved for id=${record.id} at ${record.time_out}")
+    result.onSuccess { response ->
+        println("Clock-out saved for id=${response.record.id} at ${response.record.entry_time}")
     }.onFailure {
         println("Clock-out failed: ${it.message}")
     }
@@ -37,7 +37,7 @@ suspend fun exampleGetRecordsForToday(repo: TimekeeperRepository, userId: Int) {
     val result = repo.getTimeRecords(userId, start, end)
     result.onSuccess { records ->
         records.forEach { rec ->
-            println("id=${rec.id}, in=${rec.time_in}, out=${rec.time_out}, duration=${rec.getFormattedDuration()}")
+            println("id=${rec.id}, type=${rec.entry_type}, event=${rec.entry_time}, duration=${rec.getFormattedDuration()}")
         }
     }.onFailure {
         println("Fetch failed: ${it.message}")

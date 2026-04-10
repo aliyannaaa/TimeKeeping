@@ -12,7 +12,7 @@ const dbPool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || 'Root123456789',
-  database: process.env.DB_NAME || 'local_timeclock',
+  database: process.env.DB_NAME || 'timeclock',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -54,15 +54,21 @@ function buildSelectTimecardColumns(hasRecordNo) {
     SELECT
       ${hasRecordNo ? 'CAST(tc.record_no AS CHAR)' : 'tc.id'} AS id,
       tc.employee_id AS user_id,
-      tc.time_in AS time_in,
-      tc.time_out AS time_out,
+      tc.time_in AS entry_time,
+      tc.time_in_type AS entry_type,
       tc.location_time_in AS location_time_in,
-      tc.location_time_out AS location_time_out,
       tc.created_date AS created_date,
       tc.modified_date AS modified_date
     FROM timecard AS tc
   `;
 }
+
+const ENTRY_TYPES = Object.freeze({
+  TIME_IN: 1,
+  TIME_OUT: 2,
+  OVERTIME_IN: 3,
+  OVERTIME_OUT: 4
+});
 
 function dbErrorToHttp(err) {
   if (err && err.code === 'ER_DUP_ENTRY') {
@@ -101,6 +107,11 @@ function parseTimestampMs(value) {
     return null;
   }
 
+  if (value instanceof Date) {
+    const time = value.getTime();
+    return Number.isFinite(time) && time > 0 ? time : null;
+  }
+
   const numeric = Number(value);
   if (Number.isFinite(numeric) && numeric > 0) {
     return Math.trunc(numeric);
@@ -131,24 +142,250 @@ function formatTimestampReadable(timestampMs) {
 }
 
 function mapTimecardRow(row) {
-  const timeInMs = parseTimestampMs(row.time_in);
-  const timeOutMs = parseTimestampMs(row.time_out);
+  const entryTimeMs = parseTimestampMs(row.entry_time);
   const createdDateMs = parseTimestampMs(row.created_date);
   const modifiedDateMs = parseTimestampMs(row.modified_date);
 
   return {
     id: String(row.id),
     user_id: Number(row.user_id),
-    time_in: formatTimestampReadable(timeInMs),
-    time_out: formatTimestampReadable(timeOutMs),
-    time_in_ms: timeInMs,
-    time_out_ms: timeOutMs,
+    entry_time: formatTimestampReadable(entryTimeMs),
+    entry_time_ms: entryTimeMs,
+    entry_type: Number(row.entry_type || 0),
     created_date: formatTimestampReadable(createdDateMs),
     modified_date: formatTimestampReadable(modifiedDateMs),
     created_date_ms: createdDateMs,
     modified_date_ms: modifiedDateMs,
-    location_time_in: row.location_time_in || null,
-    location_time_out: row.location_time_out || null
+    location_time_in: row.location_time_in || null
+  };
+}
+
+function getDayKey(timestampMs) {
+  if (!Number.isFinite(timestampMs) || timestampMs <= 0) {
+    return null;
+  }
+
+  const date = new Date(timestampMs);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const pad = (value) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function getAttendanceDayState(records, referenceMs) {
+  const targetDay = getDayKey(referenceMs);
+  const todaysRecords = records
+    .filter((record) => getDayKey(record.entry_time_ms) === targetDay)
+    .sort((a, b) => (a.entry_time_ms || 0) - (b.entry_time_ms || 0));
+
+  const latestByType = new Map();
+  todaysRecords.forEach((record) => {
+    latestByType.set(record.entry_type, record);
+  });
+
+  const hasType = (type) => latestByType.has(type);
+  const clockedIn = (hasType(ENTRY_TYPES.TIME_IN) && !hasType(ENTRY_TYPES.TIME_OUT))
+    || (hasType(ENTRY_TYPES.OVERTIME_IN) && !hasType(ENTRY_TYPES.OVERTIME_OUT));
+
+  return {
+    todaysRecords,
+    latestByType,
+    hasType,
+    clockedIn
+  };
+}
+
+function resolveTargetType(action, dayState) {
+  if (action === 'in') {
+    if (dayState.clockedIn) {
+      return {
+        targetType: dayState.hasType(ENTRY_TYPES.OVERTIME_IN) && !dayState.hasType(ENTRY_TYPES.OVERTIME_OUT)
+          ? ENTRY_TYPES.OVERTIME_IN
+          : ENTRY_TYPES.TIME_IN,
+        forceOverride: true,
+        notice: "you're already logged in"
+      };
+    }
+
+    if (!dayState.hasType(ENTRY_TYPES.TIME_IN)) {
+      return {
+        targetType: ENTRY_TYPES.TIME_IN,
+        forceOverride: false,
+        notice: null
+      };
+    }
+
+    if (dayState.hasType(ENTRY_TYPES.TIME_IN)
+      && dayState.hasType(ENTRY_TYPES.TIME_OUT)
+      && !dayState.hasType(ENTRY_TYPES.OVERTIME_IN)) {
+      return {
+        targetType: ENTRY_TYPES.OVERTIME_IN,
+        forceOverride: false,
+        notice: null
+      };
+    }
+
+    return {
+      targetType: dayState.hasType(ENTRY_TYPES.OVERTIME_IN)
+        ? ENTRY_TYPES.OVERTIME_IN
+        : ENTRY_TYPES.TIME_IN,
+      forceOverride: true,
+      notice: "you're already logged in"
+    };
+  }
+
+  if (action === 'out') {
+    if (dayState.clockedIn) {
+      const targetType = dayState.hasType(ENTRY_TYPES.OVERTIME_IN) && !dayState.hasType(ENTRY_TYPES.OVERTIME_OUT)
+        ? ENTRY_TYPES.OVERTIME_OUT
+        : ENTRY_TYPES.TIME_OUT;
+      return {
+        targetType,
+        forceOverride: dayState.hasType(targetType),
+        notice: dayState.hasType(targetType) ? "you're already logged out" : null
+      };
+    }
+
+    if (!dayState.hasType(ENTRY_TYPES.TIME_IN)) {
+      return {
+        targetType: null,
+        forceOverride: false,
+        notice: null,
+        error: 'Must log in before log out'
+      };
+    }
+
+    const overrideType = dayState.hasType(ENTRY_TYPES.OVERTIME_OUT)
+      ? ENTRY_TYPES.OVERTIME_OUT
+      : ENTRY_TYPES.TIME_OUT;
+
+    return {
+      targetType: overrideType,
+      forceOverride: true,
+      notice: "you're already logged out"
+    };
+  }
+
+  return {
+    targetType: null,
+    forceOverride: false,
+    notice: null,
+    error: 'Invalid action. Allowed values: in, out'
+  };
+}
+
+function getRecordWhereClause(hasRecordNo, recordId) {
+  if (hasRecordNo) {
+    return {
+      clause: 'tc.record_no = ?',
+      value: toPositiveInt(recordId, 'id')
+    };
+  }
+
+  return {
+    clause: 'tc.id = ?',
+    value: String(recordId)
+  };
+}
+
+async function loadUserMappedRecords(selectTimecardColumns, userId) {
+  const [rows] = await dbPool.query(
+    `${selectTimecardColumns} WHERE tc.employee_id = ? ORDER BY tc.time_in ASC`,
+    [userId]
+  );
+  return rows.map(mapTimecardRow);
+}
+
+async function createOrOverrideAttendanceEntry({
+  timecardCapabilities,
+  userId,
+  eventTime,
+  action,
+  locationTimeIn
+}) {
+  const selectTimecardColumns = buildSelectTimecardColumns(timecardCapabilities.hasRecordNo);
+  const mappedRecords = await loadUserMappedRecords(selectTimecardColumns, userId);
+  const dayState = getAttendanceDayState(mappedRecords, eventTime);
+  const decision = resolveTargetType(action, dayState);
+
+  if (decision.error) {
+    return {
+      statusCode: 400,
+      body: { error: decision.error }
+    };
+  }
+
+  const existingForType = dayState.latestByType.get(decision.targetType);
+  const shouldOverride = Boolean(decision.forceOverride || existingForType);
+  const actor = `employee:${userId}`;
+  const nowMs = Date.now();
+  let whereClause = null;
+  let whereValue = null;
+
+  if (shouldOverride && existingForType) {
+    const where = getRecordWhereClause(timecardCapabilities.hasRecordNo, existingForType.id);
+    whereClause = where.clause;
+    whereValue = where.value;
+
+    await dbPool.query(
+      `
+        UPDATE timecard AS tc
+        SET
+          tc.time_in = FROM_UNIXTIME(? / 1000),
+          tc.location_time_in = ?,
+          tc.modified_by = ?,
+          tc.modified_date = FROM_UNIXTIME(? / 1000),
+          tc.time_in_type = ?
+        WHERE ${whereClause}
+      `,
+      [eventTime, locationTimeIn, actor, nowMs, decision.targetType, whereValue]
+    );
+  } else {
+    const timecardUuid = crypto.randomUUID().replace(/-/g, '');
+    const [insertResult] = await dbPool.query(
+      `
+        INSERT INTO timecard (
+          id,
+          employee_id,
+          time_in,
+          location_time_in,
+          created_by,
+          created_date,
+          time_in_type
+        )
+        VALUES (?, ?, FROM_UNIXTIME(? / 1000), ?, ?, FROM_UNIXTIME(? / 1000), ?)
+      `,
+      [timecardUuid, userId, eventTime, locationTimeIn, actor, nowMs, decision.targetType]
+    );
+
+    if (timecardCapabilities.hasRecordNo) {
+      whereClause = 'tc.record_no = ?';
+      whereValue = Number(insertResult.insertId);
+    } else {
+      whereClause = 'tc.id = ?';
+      whereValue = timecardUuid;
+    }
+  }
+
+  const [updatedRows] = await dbPool.query(
+    `${selectTimecardColumns} WHERE ${whereClause} LIMIT 1`,
+    [whereValue]
+  );
+
+  const refreshedRecord = mapTimecardRow(updatedRows[0]);
+  const refreshedRecords = await loadUserMappedRecords(selectTimecardColumns, userId);
+  const refreshedState = getAttendanceDayState(refreshedRecords, eventTime);
+
+  return {
+    statusCode: shouldOverride ? 200 : 201,
+    body: {
+      record: refreshedRecord,
+      overridden: shouldOverride,
+      notice: decision.notice,
+      clocked_in: refreshedState.clockedIn
+    }
   };
 }
 
@@ -336,135 +573,89 @@ app.get('/timeinout/active/:userId', asyncRoute(async (req, res) => {
   const selectTimecardColumns = buildSelectTimecardColumns(timecardCapabilities.hasRecordNo);
   const userId = toPositiveInt(req.params.userId, 'userId');
   const [rows] = await dbPool.query(
-    `${selectTimecardColumns} WHERE tc.employee_id = ? AND tc.time_out IS NULL ORDER BY tc.time_in DESC LIMIT 1`,
+    `${selectTimecardColumns} WHERE tc.employee_id = ? ORDER BY tc.time_in ASC`,
     [userId]
   );
 
-  if (rows.length === 0) {
-    return res.status(200).json(null);
-  }
+  const mapped = rows.map(mapTimecardRow);
+  const dayState = getAttendanceDayState(mapped, Date.now());
+  const lastRecord = dayState.todaysRecords.length > 0
+    ? dayState.todaysRecords[dayState.todaysRecords.length - 1]
+    : null;
 
-  res.json(mapTimecardRow(rows[0]));
+  res.json({
+    user_id: userId,
+    clocked_in: dayState.clockedIn,
+    last_record: lastRecord
+  });
+}));
+
+app.post('/timeinout/log', asyncRoute(async (req, res) => {
+  const timecardCapabilities = await getTimecardCapabilities();
+  const userId = toPositiveInt(req.body.user_id, 'user_id');
+  const eventTime = toPositiveTimestamp(req.body.event_time, 'event_time');
+  const action = String(req.body.action || '').trim().toLowerCase();
+  const locationTimeIn = req.body.location_time_in === undefined || req.body.location_time_in === null
+    ? null
+    : String(req.body.location_time_in).trim();
+
+  const result = await createOrOverrideAttendanceEntry({
+    timecardCapabilities,
+    userId,
+    eventTime,
+    action,
+    locationTimeIn
+  });
+
+  return res.status(result.statusCode).json(result.body);
 }));
 
 app.post('/timeinout', asyncRoute(async (req, res) => {
   const timecardCapabilities = await getTimecardCapabilities();
-  const selectTimecardColumns = buildSelectTimecardColumns(timecardCapabilities.hasRecordNo);
   const userId = toPositiveInt(req.body.user_id, 'user_id');
   const timeIn = toPositiveTimestamp(req.body.time_in, 'time_in');
   const locationTimeIn = req.body.location_time_in === undefined || req.body.location_time_in === null
     ? null
     : String(req.body.location_time_in).trim();
 
-  const [activeRows] = await dbPool.query(
-    `${selectTimecardColumns} WHERE tc.employee_id = ? AND tc.time_out IS NULL LIMIT 1`,
-    [userId]
-  );
+  const result = await createOrOverrideAttendanceEntry({
+    timecardCapabilities,
+    userId,
+    eventTime: timeIn,
+    action: 'in',
+    locationTimeIn
+  });
 
-  if (activeRows.length > 0) {
-    return res.status(409).json({ error: 'User already has an active clock-in record' });
-  }
-
-  const timecardUuid = crypto.randomUUID().replace(/-/g, '');
-  const auditActor = `employee:${userId}`;
-  const createdDate = Date.now();
-
-  const [insertResult] = await dbPool.query(
-    `
-      INSERT INTO timecard (
-        id,
-        employee_id,
-        time_in,
-        location_time_in,
-        created_by,
-        created_date,
-        time_in_type
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `,
-    [timecardUuid, userId, timeIn, locationTimeIn, auditActor, createdDate, 1]
-  );
-
-  let createdWhereClause = 'tc.id = ?';
-  let createdWhereValue = timecardUuid;
-  if (timecardCapabilities.hasRecordNo) {
-    createdWhereClause = 'tc.record_no = ?';
-    createdWhereValue = Number(insertResult.insertId);
-  }
-
-  const [rows] = await dbPool.query(
-    `${selectTimecardColumns} WHERE ${createdWhereClause} LIMIT 1`,
-    [createdWhereValue]
-  );
-
-  res.status(201).json(mapTimecardRow(rows[0]));
+  res.status(result.statusCode).json(result.body.record);
 }));
 
 app.put('/timeinout/:id/clockout', asyncRoute(async (req, res) => {
   const timecardCapabilities = await getTimecardCapabilities();
-  const selectTimecardColumns = buildSelectTimecardColumns(timecardCapabilities.hasRecordNo);
   const rawId = String(req.params.id || '').trim();
+  const timeOut = toPositiveTimestamp(req.body.time_out, 'time_out');
+  const locationTimeIn = req.body.location_time_in === undefined || req.body.location_time_in === null
+    ? null
+    : String(req.body.location_time_in).trim();
+
+  const userId = toPositiveInt(req.body.user_id, 'user_id');
+
   if (!rawId) {
     return res.status(400).json({ error: 'id is required' });
   }
 
-  const whereClause = timecardCapabilities.hasRecordNo ? 'tc.record_no = ?' : 'tc.id = ?';
-  const whereValue = timecardCapabilities.hasRecordNo ? toPositiveInt(rawId, 'id') : rawId;
-  const timeOut = toPositiveTimestamp(req.body.time_out, 'time_out');
-  const locationTimeOut = req.body.location_time_out === undefined || req.body.location_time_out === null
-    ? null
-    : String(req.body.location_time_out).trim();
+  const result = await createOrOverrideAttendanceEntry({
+    timecardCapabilities,
+    userId,
+    eventTime: timeOut,
+    action: 'out',
+    locationTimeIn
+  });
 
-  const connection = await dbPool.getConnection();
-  try {
-    await connection.beginTransaction();
-
-    const [rows] = await connection.query(
-      `${selectTimecardColumns} WHERE ${whereClause} LIMIT 1 FOR UPDATE`,
-      [whereValue]
-    );
-
-    if (rows.length === 0) {
-      await connection.rollback();
-      return res.status(404).json({ error: 'Time record not found' });
-    }
-
-    const existing = mapTimecardRow(rows[0]);
-    if (existing.time_out !== null) {
-      await connection.rollback();
-      return res.status(409).json({ error: 'Record already clocked out' });
-    }
-
-    if (!existing.time_in_ms || timeOut <= existing.time_in_ms) {
-      await connection.rollback();
-      return res.status(400).json({ error: 'time_out must be greater than time_in' });
-    }
-
-    await connection.query(
-      `
-        UPDATE timecard AS tc
-        SET
-          tc.time_out = ?,
-          tc.location_time_out = ?,
-          tc.modified_by = ?,
-          tc.modified_date = ?,
-          tc.time_out_type = ?
-        WHERE ${whereClause}
-      `,
-      [timeOut, locationTimeOut, `employee:${existing.user_id}`, Date.now(), 1, whereValue]
-    );
-
-    await connection.commit();
-
-    const [updatedRows] = await connection.query(
-      `${selectTimecardColumns} WHERE ${whereClause} LIMIT 1`,
-      [whereValue]
-    );
-
-    res.json(mapTimecardRow(updatedRows[0]));
-  } finally {
-    connection.release();
+  if (result.body && result.body.error) {
+    return res.status(result.statusCode).json(result.body);
   }
+
+  res.status(result.statusCode).json(result.body.record);
 }));
 
 app.use((err, req, res, next) => {
