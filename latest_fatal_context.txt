@@ -1,0 +1,241 @@
+
+04-21 14:56:30.261  1553  1617 D pseudo  : 
+
+04-21 14:56:30.261  1553  1617 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:63, [GPSDBG],WARNING, [mnl_sys_alps_nmea_output] MNL not running!
+
+04-21 14:56:30.261  1553  1617 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:63, [GPSDBG],WARNING, [GPSLOG]:$XML:MDdisableBDS,v1.00,Cfg,1*7D
+
+04-21 14:56:30.261  1553  1617 D pseudo  : 
+
+04-21 14:56:30.261  1553 25018 D gps_dbg_log: gps_log_dir_check: DirLogSize_temp:0, the latest OldGpsFile:!
+
+04-21 14:56:30.261  1553  1617 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:63, [GPSDBG],WARNING, [mnl_sys_alps_nmea_output] MNL not running!
+
+04-21 14:56:30.261  1553 25018 D gps_dbg_log: gps_log_dir_check: After remove file gpsdebug log dir size:0!
+
+04-21 14:56:30.261  1553  1617 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:79, [GPSDBG],WARNING, [GPSLOG]:$XML(UnknownFeature):FastGeofence,v1.00,Cfg,0*4F
+
+04-21 14:56:30.261  1553  1617 D pseudo  : 
+
+04-21 14:56:30.261  1553 25018 D gps_dbg_log: gps_log_dir_check: dir size:0
+
+04-21 14:56:30.261  1465  2582 D ActivityManager: Logging startService for com.google.android.gms, stopped=false, firstLaunch=false, intent=Intent { act=com.google.android.location.internal.GMS_NLP xflg=0x4 pkg=com.google.android.gms (has extras) }, r.app=ProcessRecord{f44a409 3469:com.google.android.gms.persistent/u0a151}
+04-21 14:56:30.261  1553  1617 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:63, [GPSDBG],WARNING, [mnl_sys_alps_nmea_output] MNL not running!
+
+04-21 14:56:30.261  1553  1617 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:82, [GPSDBG],WARNING, [GPSLOG]:$XML(UnknownFeature):MPVT_LOG_ENABLE,v1.00,Cfg,0*13
+
+04-21 14:56:30.261  1553  1617 D pseudo  : 
+
+04-21 14:56:30.261  1553  1617 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:63, [GPSDBG],WARNING, [mnl_sys_alps_nmea_output] MNL not running!
+
+04-21 14:56:30.261  1553  1617 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:159, [GPSDBG],WARNING, [GPSLOG]:$LoadMNLConfigXMLFinished,1,3,/data/vendor/gps/MNL_Config.xml,/data/vendor/gps/MNL_Config.xml,21111601.000000,21111601.000000*2A
+
+04-21 14:56:30.261  1553  1617 D pseudo  : 
+
+04-21 14:56:30.262  1465  2582 E AlarmManager: not align this alarm: Alarm{c487644 type 3 origWhen 35953762 whenElapsed 35953762 com.google.android.gms}, reason=0
+04-21 14:56:30.263  1465  2582 D Aurogon :  packageName = com.google.android.gms isAllowWakeUpList 
+04-21 14:56:30.264  1465  4071 D LocationManagerService: incoming location: Location[network hAcc=20 et=+9h58m53s762ms vAcc=2 sAcc=??? bAcc=???]
+04-21 14:56:30.265  1465  3904 D Aurogon :  packageName = com.google.android.gms isAllowWakeUpList 
+04-21 14:56:30.265  1553  1617 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:58, [mtk_gps_ofl_file_to_emi_update_whole] file not exist:None
+04-21 14:56:30.265  1553  1617 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:98, mnl_sys_driver_cfg_ext_validate: m = 1, o = 206/206, s = 6/6, m = 0xaa55/0xaa55, v = 0x0102/0x0102
+04-21 14:56:30.265  1553  1617 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:76, hw suspend validate = 1(0), enabled = 1(1), resume = 0(0), cb = 0x5d08a0d380
+04-21 14:56:30.265  1553  1617 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:63, ChipID,x,100,y,0,hw_ver,0,fw_ver,0,gnss_mode_flag,FFFFFFFF,PM,0
+04-21 14:56:30.265  1553  1617 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:43, write gps debug log in MNLD,DebugType(0x10)
+04-21 14:56:30.266  1553  1617 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:21,  Agent epo init OK 
+
+04-21 14:56:30.266  1553  1617 D gps_controlller: linux_gps_init: mtk_gps_mnl_run Status (18) 
+04-21 14:56:30.266  1553  1617 D mpe     : mnl_mpe_thread_init: register mpe cb 0,gMpeCallBackFunc= 0x5d08a26df0,mtk_gps_mnl_trigger_mpe=0x5d08a26df0
+04-21 14:56:30.266  1553 25021 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:66, [mnl_thread_ofl_strg_update_func]Port ID not match, idx:19 VS ID:0
+04-21 14:56:30.266  1553 25021 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:66, [mnl_thread_ofl_strg_update_func]Port ID not match, idx:20 VS ID:0
+04-21 14:56:30.266  1553  1617 D gps_controlller: linux_gps_init: dsp port (/dev/gpsdl0),nmea port (UseCallback),nmea dbg port (/dev/ttygserial),dbg_file_name (/data/vendor/gps/gpsdebug.log),DebugType (16),nv_file_name (/data/vendor/gps/mtkgps.dat), mtk_gps_log_hide:0, socket_port:1048575, bitmap_nfw_ctrl:0x1b,  RfPathLossDb_Ap:0.00, log_mode_bitmap:0x1, 3dma_enabled=0, basement_tunnel_enabled=0
+04-21 14:56:30.266  1553  1617 D MNLD    : mtk_gps_dump_nfw_visibility: nfw_user_visibility[0]:1
+04-21 14:56:30.266  1465  3904 E AlarmManager: not align this alarm: Alarm{b7b432d type 2 origWhen 37131068 whenElapsed 37131068 com.google.android.gms}, reason=0
+04-21 14:56:30.266  1553 25022 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:38,  MCU2AP thread created: 0x7122dbdc40
+
+04-21 14:56:30.266  1553  1617 D gps_controlller: linux_gps_init: sent CMD_SIB8_16_ENABLE to mnl, sib8_16_enable = 1 ,ret = 0
+04-21 14:56:30.266  1553  1617 D gps_controlller: linux_gps_init: sent enable_debug2app to mnl, enable_debug2app = 0 ,ret = 0
+04-21 14:56:30.266  1553  1617 D gps_controlller: linux_gps_init: sent MTK_PARAM_CMD_LPPE_ENABLE to mnl, lppe_enable = 1 ,ret = 0
+04-21 14:56:30.266  1553  1617 D gps_controlller: linux_gps_init: sent enable_full_tracking to mnl, enable_full_tracking = 0 ,ret = 0
+04-21 14:56:30.266  1553  1617 D gps_controlller: linux_gps_init: sent enable_corrvec_output to mnl, enable_corrvec_output = 0 ,ret = 0
+04-21 14:56:30.266  1553  1617 D gps_controlller: linux_gps_init: sent g_agps_version_sync to mnl, g_agps_version_sync=0
+04-21 14:56:30.266  1553  1617 D gps_controlller: linux_gps_init: sent MTK_PARAM_CMD_AUDIO_INFO to mnl, mnld_audio_info = 0 ,ret = 0
+04-21 14:56:30.266  1553  1617 W gps_controlller: mnld_gps_lp_mode_sync: mnld_gps_lp_mode_sync success, lp_mode:3
+04-21 14:56:30.266  1553  1617 W gps_controlller: mnld_gps_lp_mode_sync: set ap aiding config 
+04-21 14:56:30.266  1553  1617 W gps_controlller: mnld_gps_lp_mode_sync: set aiding config success, scp_aiding_config:7, ap_tracking_aiding_config:15
+04-21 14:56:30.266  1553  1617 D pseudo  : mtk_gps_sys_nmea_output_to_app: len:27, MTK_PARAM_CMD_TMS_FREQ,1080
+04-21 14:56:30.266  1553  1617 D gps_controlller: linux_gps_init: sent MTK_PARAM_CMD_TMS_FREQ to mnl, gnss_clock_rate=1, ret=0
+04-21 14:56:30.266  1553  1617 D gps_controlller: linux_gps_init: sent mpe config to mnl, mpe_cfg.cfg_flag=57,mpe_cfg.sensor_flag=0
+04-21 14:56:30.266  1553  1617 D gps_controlller: linux_gps_init: ap2mcu screen_status:SCREEN_STATUS_ON
+04-21 14:56:30.266  1553  1617 D gps_controlller: linux_gps_init: no stored_accuracy
+04-21 14:56:30.266  1553  1617 D gps_controlller: mnld_gps_start: mnld_gps_start() success
+04-21 14:56:30.266  1553  1617 D gps_controlller: gps_control_thread: gps_control_thread wait
+04-21 14:56:30.267  1115  1128 D GnssAidl: [14.14] injectLocation.
+04-21 14:56:30.267  1115  1128 E android.hardware.gnss-service.mediatek: gpsinf_inject_best_location: flags:51, speed:0.000000, bearing:0.000000, h_accuracy:20.351599, v_accuracy:2.142400, s_accuracy:0.000000, b_accuracy:0.000000, timestamp:-1361870283 
+04-21 14:56:30.267  1115  1128 D android.hardware.gnss-service.mediatek: mtk_hal_geofence_inject_best_location: NLP timestamp:1776754590261, sys_time:1776754590267
+04-21 14:56:30.267  1553  1630 E mnl2hal : hal2mnl_hdlr: HAL2MNL_GPS_INJECT_BEST_LOCATION h_accuracy:20.351599, timestamp:-1361870283 
+04-21 14:56:30.267  1553  1630 D MNLD    : mnld_nfw_mnl2agps_location_sync: mnl2agps_location_sync success, ret = 51
+04-21 14:56:30.267  1643  1655 D agps    : [agps][n][AGPS] [MNL] mnl2agps [153]
+04-21 14:56:30.268  1115  1128 D android.hardware.gnss-service.mediatek: geofence_dev_write: [geofence_dev_write] write success:write_len:120, size:112
+04-21 14:56:30.276  1241  1869 D libcomposer_ext: ClientImplAidl::kickIdle()
+04-21 14:56:30.276  1117  1117 D libcomposer_ext: DeviceImplAidl::syncPerform(17), client_handle: 0
+04-21 14:56:30.276  1117  1117 D libcomposer_ext: DeviceImplAidl::DeviceClientContextAidl::ParseKickIdle()
+04-21 14:56:30.277  1768  2324 I libsensor-displayalgo: the value of channelCali C:5071.560293,R:2137.029258,G:1412.982540,B:443.547920,scales C:0.998404,R:1.033866,G:1.024260,B:1.193459
+04-21 14:56:30.277  1768  2324 D libsensor-displayalgo: brightness:1189.000000,flat_mode:0.000000,R1:53000.066070,G1:54483.901018,B1:54983.111011,R2:53000.066070,G2:54483.901018,B2:54983.111011,R3:53000.066070,G3:54483.901018,B3:54983.111011,R4:52861.811606,G4:54342.872218,B4:54836.642474,EVENT C:8693.000000,R:3362.000000,G:2901.000000,B:752.000000, lux: 45.523499, cct: 5531.365234
+04-21 14:56:30.277  1465  2515 I SmartPower: com.google.android.inputmethod.latin/10192(5201): background->idle(3000ms) R(become invisible) adj=100.
+04-21 14:56:30.277  3014  3014 D ControlCenterHeaderExpandController: onExpansionChanged: progress =  0.0
+04-21 14:56:30.278  3014  3014 I FolmePropertyAnimator: slot = location ---> start anim success  cur =0.0 value = 1.0
+04-21 14:56:30.278  3014  3014 D ControlCenterHeaderExpandController: onExpansionChanged: progress =  0.0
+04-21 14:56:30.278  3014  3014 D ControlCenterHeaderExpandController: onExpansionChanged: progress =  0.0
+04-21 14:56:30.279  3014  3014 I FolmePropertyAnimator: slot = location ---> start anim success  cur =0.0 value = 1.0
+04-21 14:56:30.279  1130  1130 I mali_platform_hal: useCompressionVulkan pid=3014, applicationName=android framework, 0
+04-21 14:56:30.279  1130  1130 I mali_platform_hal: useCompressionVulkan pid=3014, applicationName=android framework, 0
+04-21 14:56:30.277  1241  1241 W binder:1241_5: type=1400 audit(0.0:264639): avc:  denied  { search } for  name="mcd" dev="dm-66" ino=798 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+04-21 14:56:30.282  1130  1130 I mali_platform_hal: useCompressionVulkan pid=3014, applicationName=android framework, 0
+04-21 14:56:30.282  1130  1130 I mali_platform_hal: useCompressionVulkan pid=3014, applicationName=android framework, 0
+04-21 14:56:30.281  1241  1241 W binder:1241_5: type=1400 audit(0.0:264640): avc:  denied  { search } for  name="mcd" dev="dm-66" ino=798 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+04-21 14:56:30.281  1241  1241 W binder:1241_5: type=1400 audit(0.0:264641): avc:  denied  { search } for  name="mcd" dev="dm-66" ino=798 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+04-21 14:56:30.293  1241  1241 I BufferQueueProducer: [StatusBar1#132](this:0xb400007d6461c750,id:-1,api:0,p:-1,c:1241) queueBuffer: fps=0.69 dur=1443.88 max=1443.88 min=1443.88
+04-21 14:56:30.293  1241  1241 I BufferQueueProducer: [com.example.yoshiitimekeeping/com.example.yoshiitimekeeping.MainActivity#14849](this:0xb400007d646cfdc0,id:-1,api:0,p:-1,c:1241) queueBuffer: fps=2.04 dur=2456.80 max=2107.67 min=16.45
+04-21 14:56:30.293  1241  1241 I BufferQueueProducer: [StatusBar#130](this:0xb400007d646199c0,id:-1,api:0,p:-1,c:1241) queueBuffer: fps=0.69 dur=1444.00 max=1444.00 min=1444.00
+04-21 14:56:30.294  3014  3014 D ControlCenterHeaderExpandController: onExpansionChanged: progress =  0.0
+04-21 14:56:30.294  1241  1241 D CompositionEngine: AodOverrideCEHelper 1 setEnabled
+04-21 14:56:30.295  1241  1241 E HwcComposer: presentOrValidateDisplay 0 presentFence:-1
+04-21 14:56:30.296  1117  1117 I hwcomposer: [HWCDisplay] [Display_0 (type:1, mode:2)] fps:2.768515,dur:1444.82,max:1229.88,min:16.07  
+04-21 14:56:30.296  1117  1813 I android.hardware.graphics.composer@3.2-service: Sensor: notify citsensorservice to trigger cwb
+04-21 14:56:30.297  1768  2318 I libsensor-frameBufferManager: request dump start
+04-21 14:56:30.297  1768  2318 D libcomposer_ext: ClientImplAidl::getDispDumpEnable()
+04-21 14:56:30.297  1117  1117 D libcomposer_ext: DeviceImplAidl::syncPerform(13), client_handle: 2
+04-21 14:56:30.297  1117  1117 D libcomposer_ext: DeviceImplAidl::DeviceClientContextAidl::ParseGetDispDumpEnable()
+04-21 14:56:30.297  1117  1117 I hwcomposer: [HWC] getDispDumpEnable(), client(2), dpy 1, enable 1, (0,0,240,240), (240, 240), 3  
+04-21 14:56:30.297  1117  1117 I hwcomposer: [DISP_DUMP] isAvailable, same client, client(2),                 m_client_handle(18446744073709551615)  
+04-21 14:56:30.297  1117  1117 I hwcomposer: [DRMDEV] isSupportWbParams(), id_crtc 115, id_connector 34, dump_point 0, src(240, 240), dst(240, 240), config 0  
+04-21 14:56:30.297  1117  1117 I hwcomposer: [DISP_DUMP] setEnable(), client(2), dpy(0), enable 1/0,             src(0, 0, 240, 240), dst(240, 240), fmt 0x3  
+04-21 14:56:30.297  1768  2318 E libsensor-frameBufferManager: frameBufferManager_sensor_debug : first_time getDispDump Enable ret = 0
+04-21 14:56:30.297  1768  2318 D libcomposer_ext: ClientImplAidl::getDispDump(), dpy 1, dst (240, 240), dump_point 1, release_fence -1
+04-21 14:56:30.297  1241  1874 W libc    : Access denied finding property "ro.vendor.display.max_hdr_luminance"
+04-21 14:56:30.297  1117  1117 D libcomposer_ext: DeviceImplAidl::syncPerform(14), client_handle: 2
+04-21 14:56:30.297  1117  1117 D libcomposer_ext: DeviceImplAidl::DeviceClientContextAidl::ParseGetDispDump()
+04-21 14:56:30.297  1117  1117 D libcomposer_ext: DeviceImplAidl::ParseGetDispDump(), dpy 1, dst (240, 240), dump_point 1
+04-21 14:56:30.297  1117  1117 I hwcomposer: [HWC] getDispDump(), client(2), dpy 1, (617,42,857,282), (240, 240), (1, 2), (-1), (-1), (0xb4000070494404d0)  
+04-21 14:56:30.297  1117  1117 I hwcomposer: [DISP_DUMP] isAvailable, same client, client(2),                 m_client_handle(2)  
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: FATAL EXCEPTION: main
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: Process: com.example.yoshiitimekeeping, PID: 24849
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: java.lang.IllegalArgumentException: Can only use lower 16 bits for requestCode
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at androidx.fragment.app.FragmentActivity.checkForValidRequestCode(FragmentActivity.java:714)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at androidx.fragment.app.FragmentActivity.validateRequestPermissionsRequestCode(FragmentActivity.java:729)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at androidx.core.app.ActivityCompat.requestPermissions(ActivityCompat.java:543)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at androidx.activity.ComponentActivity$1.onLaunch(ComponentActivity.java:218)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at androidx.activity.result.ActivityResultRegistry$3.launch(ActivityResultRegistry.java:244)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at androidx.activity.compose.ActivityResultLauncherHolder.launch(ActivityResultRegistry.kt:154)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at androidx.activity.compose.ManagedActivityResultLauncher.launch(ActivityResultRegistry.kt:143)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at androidx.activity.result.ActivityResultLauncher.launch(ActivityResultLauncher.java:47)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at com.example.yoshiitimekeeping.MainActivityKt$ClockInScreen$8$1.invokeSuspend(MainActivity.kt:1224)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:108)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher.performTrampolineDispatch(AndroidUiDispatcher.android.kt:81)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher.access$performTrampolineDispatch(AndroidUiDispatcher.android.kt:41)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher$dispatchCallback$1.run(AndroidUiDispatcher.android.kt:57)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:995)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:103)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:267)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:360)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10054)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:616)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1115)
+04-21 14:56:30.297 24849 24849 E AndroidRuntime: 	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [androidx.compose.ui.platform.MotionDurationScaleImpl@23992ce, androidx.compose.runtime.BroadcastFrameClock@69275ef, StandaloneCoroutine{Cancelling}@22538fc, AndroidUiDispatcher@1e3b85]
+04-21 14:56:30.297  1117  1117 I hwcomposer: [DRMDEV] isSupportWbParams(), id_crtc 115, id_connector 34, dump_point 1, src(240, 240), dst(240, 240), config 0  
+04-21 14:56:30.297  1117  1117 I hwcomposer: [DISP_DUMP] setDumpBuf(), client(2), dpy(0), src(617, 42, 857, 282),             dst(240, 240), (1, 2), -1, (-1), (0xb4000070494404d0)  
+04-21 14:56:30.297  1117  1117 I hwcomposer: [HWC] (0)fire a callback of refresh to SF[9]  
+04-21 14:56:30.300 24849 25026 W FileUtils: Failed to chmod(/data/miuilog/stability/jetrace): android.system.ErrnoException: chmod failed: EACCES (Permission denied)
+04-21 14:56:30.300 24849 25026 W RuntimeInitImpl: dump java trace fail /data/miuilog/stability/jetrace/2026-04-21-14-56-30-299_com.example.yoshiitimekeeping_24849.trace.tmp: open failed: EACCES (Permission denied)
+04-21 14:56:30.300 24849 24849 D CompatChangeReporter: Compat change id reported: 312399441; UID 10412; state: ENABLED
+04-21 14:56:30.301 24849 24849 W ScoutUtils: Failed to mkdir /data/miuilog/stability/hprof/
+04-21 14:56:30.301  5350  5386 W MQSEventManager: jeoccur
+04-21 14:56:30.303  1465  4071 I ActivityManager: note: ProcessRecord{5ee6506 24849:com.example.yoshiitimekeeping/u0a412} is being killed, reason: APP CRASH(EXCEPTION), sub-reason: UNKNOWN, message: crash
+04-21 14:56:30.303  1465  1795 W RescuePartyPlus: This device support and enable RescuePartyPlus! (Via cloud control)
+04-21 14:56:30.304  1465  4071 W ActivityTaskManager:   Force finishing activity com.example.yoshiitimekeeping/.MainActivity
+04-21 14:56:30.304  1465 25028 I DropBoxManagerService: add tag=data_app_crash isTagEnabled=true flags=0x2
+04-21 14:56:30.304  1465  4071 D BLASTSyncEngine: [DH_DEBUG]scheduleTimeout #688 success=true timeoutMs=5000 callback=com.android.server.wm.BLASTSyncEngine$SyncGroup$$ExternalSyntheticLambda2@c4db5f3
+04-21 14:56:30.304  1465  4071 I AnimInterruptController: mark Foresee interrupt start 687
+04-21 14:56:30.304  1465  4071 I AnimInterruptController: remove FO timeout
+04-21 14:56:30.304  1465  4071 D DisplayContentStubImpl: Remove FixedRotationTimeoutRunnable
+04-21 14:56:30.305  1465  4071 D WindowManager: Collecting in transition 688: Task{11009aa #97 type=standard A=10412:com.example.yoshiitimekeeping} init visibleRequested:true dc:Display{#0 state=ON size=1220x2712 ROTATION_0}
+04-21 14:56:30.305  1465 25028 W AES     : Exception Log handling...
+04-21 14:56:30.305  1465 25028 W AES     : Skipped - do not care third party apk
+04-21 14:56:30.305  1465  4071 I ActivityTaskManager: moveTaskToFront: Task{5030ebc #2 type=home I=com.miui.home/.launcher.Launcher} caller trace:com.android.server.wm.TaskDisplayArea.onTaskMoved:461 com.android.server.wm.Task.updateTaskMovement:1754 com.android.server.wm.TaskDisplayArea.positionChildTaskAt:425 com.android.server.wm.TaskDisplayArea.positionChildAt:386 com.android.server.wm.WindowContainer.positionChildAt:1120 com.android.server.wm.Task.positionChildAt:3564 com.android.server.wm.Task.moveToFront:6225 com.android.server.wm.Task.moveToFront:6195 com.android.server.wm.ActivityRecord.moveFocusableActivityToTop:3966 com.android.server.wm.TaskDisplayArea.moveHomeActivityToTop:1839 
+04-21 14:56:30.305  1465  4071 I Perf[AppStartScene]: onSceneChangeNotify:Bundle[{renderThreadId=3200, applicationThread=android.os.BinderProxy@9b5c293, pid=3022, uid=10158, name=com.miui.home.launcher.Launcher, type=1, begin=true, state=2, processName=com.miui.home, packageName=com.miui.home, homeApp=true, appSwitch=true}]
+04-21 14:56:30.305  1465  4071 I TurboSchedManagerService: checkColdStartStatus failed, processName: com.miui.home is in black list
+04-21 14:56:30.306  1465  4071 D MiuiSoScManager: supportSoScMinimizedMode:true
+04-21 14:56:30.306  1465  4071 D MiuiSoScManager: taskInSoScFullMode:false
+04-21 14:56:30.306  1465  4071 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{86589284 u0 com.example.yoshiitimekeeping/.MainActivity t97 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10100000 xflg=0x4 cmp=com.example.yoshiitimekeeping/.MainActivity }
+04-21 14:56:30.306  1465  4071 D WindowManager: Collecting in transition 688: ActivityRecord{86589284 u0 com.example.yoshiitimekeeping/.MainActivity t97 f}} init visibleRequested:true dc:Display{#0 state=ON size=1220x2712 ROTATION_0}
+04-21 14:56:30.306  1465  4071 D ActivityTrigger: ActivityTrigger activityPauseTrigger 
+04-21 14:56:30.306  3014  3183 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=97 effectiveUid=10412 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10100000 cmp=com.example.yoshiitimekeeping/.MainActivity } baseActivity=ComponentInfo{com.example.yoshiitimekeeping/com.example.yoshiitimekeeping.MainActivity} topActivity=ComponentInfo{com.example.yoshiitimekeeping/com.example.yoshiitimekeeping.MainActivity} origActivity=null realActivity=ComponentInfo{com.example.yoshiitimekeeping/com.example.yoshiitimekeeping.MainActivity} numActivities=1 lastActiveTime=35913716 supportsSplitScreenMultiWindow=true mSoScDisplayMode=-1 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@2a5f8d4} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=ActivityInfo{a73ba7d com.example.yoshiitimekeeping.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=Rect(315, 789 - 905, 2009) capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=-9 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false topActivityInMiuiSizeCompat=false isLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1220, 2712) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=-1 mStatusBarParent=null mNavBarParent=null mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=true isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=null mTopActivityRecordName=ActivityRecord{86589284 u0 com.example.yoshiitimekeeping/.MainActivity t97} mTopActivityOrientation=-1 topActivityMainWindowFrame=null}, pipChange = null, remoteTransition = null, displayChange = null, flags = 16, debugId = 688 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=97 effectiveUid=10412 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10100000 cmp=com.example.yoshiitimekeeping/.MainActivity } baseActivity=ComponentInfo{com.example.yoshiitimekeeping/com.example.yoshiitimekeeping.MainActivity} topActivity=ComponentInfo{com.example.yoshiitimekeeping/com.example.yoshiitimekeeping.MainActivity} origActivity=null realActivity=ComponentInfo{com.example.yoshiitimekeeping/com.example.yoshiitimekeeping.MainActivity} numActivities=1 lastActiveTime=35913716 supportsSplitScreenMultiWindow=true mSoScDisplayMode=-1 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@2a5f8d4} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=ActivityInfo{a73ba7d com.example.yoshiitimekeeping.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isTopActivityNoDisplay=false isSleeping
+04-21 14:56:30.306  1465  4071 W AmsExtImpl: mResumedActivity not in top, reset!
+04-21 14:56:30.306  1465  4071 I PowerHalWrapper: amsBoostNotify pid:24849,activity:com.example.yoshiitimekeeping.MainActivity, package:com.example.yoshiitimekeeping, mProcessCreatePackcom.example.yoshiitimekeeping 
+04-21 14:56:30.306  1465  4071 I PowerHalWrapper: state: 0 
+04-21 14:56:30.306  1465  4071 I ScnModule: [GameDetection] requestedPermissions1/1:: com.example.yoshiitimekeeping:: [android.permission.INTERNET, android.permission.USE_BIOMETRIC, android.permission.ACCESS_FINE_LOCATION, android.permission.ACCESS_COARSE_LOCATION, android.permission.POST_NOTIFICATIONS, android.permission.WAKE_LOCK, android.permission.ACCESS_NETWORK_STATE, android.permission.RECEIVE_BOOT_COMPLETED, android.permission.FOREGROUND_SERVICE, android.permission.USE_FINGERPRINT, com.example.yoshiitimekeeping.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION] 
+04-21 14:56:30.306  1465  4071 I ScnModule: [GameDetection] numOfPermissiom:: com.example.yoshiitimekeeping:: 11 
+04-21 14:56:30.306  1465  4071 I ScnModule: [GameDetection] inputPermissions:: com.example.yoshiitimekeeping:: [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] 
+04-21 14:56:30.306  1465  4071 I ScnModule: [GameDetection] inputGameFeature:: com.example.yoshiitimekeeping:: [-1.305438, 0.0, 0.0, 0.0] 
+04-21 14:56:30.307  1465  4071 I ScnModule: [GameDetection] GamePredictor:: com.example.yoshiitimekeeping:: nonGame:27.5365,isGame:-29.4961 
+04-21 14:56:30.307  1465  4071 I mtkpower_client: [PowerHal_Wrap_notifyAppState] com.example.yoshiitimekeeping/com.example.yoshiitimekeeping.MainActivity pid=24849 activityId:86589284 state:0
+04-21 14:56:30.307  1149 10058 I MTK_APPList: [getForegroundAPPInfo]  com.example.yoshiitimekeeping/com.example.yoshiitimekeeping.MainActivity (pid=24849)
+04-21 14:56:30.307  1149 10058 I vendor.mediatek.hardware.mtkpower_applist-service.mediatek: MIUI ADDpackName: com.example.yoshiitimekeeping actName: com.example.yoshiitimekeeping.MainActivity
+04-21 14:56:30.307  1149 10058 I vendor.mediatek.hardware.mtkpower_applist-service.mediatek: powerhal get success
+04-21 14:56:30.307  1149 10058 I vendor.mediatek.hardware.mtkpower_applist-service.mediatek: packName: com.example.yoshiitimekeeping actName: com.example.yoshiitimekeeping.MainActivity pid: 24849 uid: 10412 state: 0
+04-21 14:56:30.307  1465  4071 D MAGT_SYNC_FRAME: MAGT App State [NOTIFY]: package = com.example.yoshiitimekeeping, action = com.example.yoshiitimekeeping.MainActivity, pid = 24849, state = 0, uid = 10412
+04-21 14:56:30.307  1149 10058 I MTK_APPList: [notifyAPPstate] com.example.yoshiitimekeeping/com.example.yoshiitimekeeping.MainActivity, pid=24849, uid=10412, state:PAUSED, fps:-1, win:0
+04-21 14:56:30.307  1149 10058 I MTK_APPList: [notifyAPPstate] multi_resumed_app_count: 0
+04-21 14:56:30.307  1149 10058 I MTK_APPList: [getForegroundAPPCount] 1
+04-21 14:56:30.307  1149 10058 I MTK_APPList: [notifyNetdUID] 10412
+04-21 14:56:30.307  7969  9844 W MIUISafety-Flares: setStatus hideLevel:0,showLevel:1
+04-21 14:56:30.308  1149 10058 I MTK_APPList: [notifyPID] 24849
+04-21 14:56:30.308  1165  1249 I libPowerHal: [perfSetSysInfo] pid type:24, 24849
+04-21 14:56:30.308  1465  4071 I PowerHalWrapper: amsBoostNotify AMS_BOOST_PROCESS_CREATE_BOOST:true 
+04-21 14:56:30.308  7969  9844 W MIUISafety-Flares: setStatus event:1,content:YoshiiTimeKeeping,type:0-0-1-0
+04-21 14:56:30.308  1465  4071 D Transition: setReady 688 wc=Task{11009aa #97 type=standard A=10412:com.example.yoshiitimekeeping} ready=false
+04-21 14:56:30.308  1465  4071 I ActivityTaskManager: resumeTopActivity: Skip resume: some activity pausing.
+04-21 14:56:30.308  1465  4071 I ActivityTaskManager: resumeTopActivity: Skip resume: some activity pausing.
+04-21 14:56:30.308  1465  4071 D WindowManager: Collecting in transition 688: ActivityRecord{46899915 u0 com.miui.home/.launcher.Launcher t2} init visibleRequested:false dc:Display{#0 state=ON size=1220x2712 ROTATION_0}
+04-21 14:56:30.308  1465  4071 I ActivityTaskManager: resumeTopActivity: Skip resume: some activity pausing.
+04-21 14:56:30.309  1465  4071 D WindowManager: New home screen wallpaper: Window{8d4a20c u0 com.miui.miwallpaper.wallpaperservice.ImageWallpaper}, prev: null
+04-21 14:56:30.309  1465  4071 D WindowManager: New lock/shared screen wallpaper: Window{8a6a8b7 u0 com.miui.miwallpaper.wallpaperservice.MiuiKeyguardPictorialWallpaper}, prev: null
+04-21 14:56:30.309  1465  4071 I TransitionImpl: home mode = 2
+04-21 14:56:30.309  1465  4071 I TransitionImpl: home mode = 3
+04-21 14:56:30.309  1465  4071 I WallpaperControllerImpl: updateWallpaperTokens requestedVisibility=false on keyguardLocked=false topWallpaper=Window{8d4a20c u0 com.miui.miwallpaper.wallpaperservice.ImageWallpaper}
+04-21 14:56:30.309  1465  4071 D WindowManager: Wallpaper target=null prev=null
+04-21 14:56:30.309  3014  3075 D CommandQueueExt: setStatus: setStatus: what = 1, action = action_update_prompt, ext = Bundle[mParcelledData.dataSize=7552][key_status_bar_home_state = android.widget.RemoteViews@fc6ad72[key_prompt_type = [I@89cc5c3[key_prompt_controlCenterDotColor = -13184665[key_first_use_location_prompt = true[key_prompt_contentDescription = YoshiiTimeKeeping[key_status_bar_mini_state = android.widget.RemoteViews@6d3ce40[key_prompt_pending = PendingIntent{6868179: android.os.BinderProxy@e3009b8}[key_status_bar_priority = 1[key_fullscreen_dot_visibility = 0[key_dot_color = -13184665
+04-21 14:56:30.309  4200  4200 I MBrainServer: [INFO] MStaticInfoCenter.cpp:911 IsMBrainEnabled: disable MBrain, dynamic close
+04-21 14:56:30.309  1465  4071 D BarFollowAnimation: pairAppearanceRegionAndWin win=Window{1c0d1c4 u0 com.example.yoshiitimekeeping/com.example.yoshiitimekeeping.MainActivity} 0
+04-21 14:56:30.309  1465  4071 D BarFollowAnimation: isAppTaskBarOnTop win:Window{1c0d1c4 u0 com.example.yoshiitimekeeping/com.example.yoshiitimekeeping.MainActivity} (mCurrentTopTask:Task{11009aa #97 type=standard A=10412:com.example.yoshiitimekeeping} : true); (mAssociatedTask:Task{11009aa #97 type=standard A=10412:com.example.yoshiitimekeeping} : true); (mHomeTask:Task{2baa70f #1 type=home} : false); mReparentToOriginParent:false mLastAppBarVisible:true mLastHomeBarVisible:false
+04-21 14:56:30.309  5563  5563 D VRI[appfinder]: visibilityChanged oldVisibility=false newVisibility=true
+04-21 14:56:30.309  1465  4071 D BarFollowAnimation: updateSystemBarAttributes index=0 statusId=0 key=1
+04-21 14:56:30.309  1241  1241 D CompositionEngine: AodOverrideCEHelper 1 setEnabled
+04-21 14:56:30.309  1465  4071 D MiuiRefreshRatePolicy: reset
+04-21 14:56:30.309  1465  4071 I TransitionImpl: home mode = 2
+04-21 14:56:30.309  1465  4071 I TransitionImpl: home mode = 3
+04-21 14:56:30.309  1465  4071 I TransitionImpl: home mode = 2
+04-21 14:56:30.309  1465  4071 I TransitionImpl: home mode = 3
+04-21 14:56:30.309  1465  4071 I TransitionImpl: home mode = 2
+04-21 14:56:30.309  1465  4071 I TransitionImpl: home mode = 3
+04-21 14:56:30.309  1465  4071 I TransitionImpl: home mode = 2
+04-21 14:56:30.309  1465  4071 I TransitionImpl: home mode = 3
+04-21 14:56:30.309  1465  4071 I TransitionImpl: home mode = 2
+04-21 14:56:30.309  1465  4071 I TransitionImpl: home mode = 3
+04-21 14:56:30.309  1465  4071 I TransitionImpl: home mode = 2
+04-21 14:56:30.309  1465  4071 I TransitionImpl: home mode = 3
+04-21 14:56:30.309  4200  4200 D LibMBrainHookServer: Skip to dispatch event java app switch(2)
+04-21 14:56:30.309  1465  4342 D MBrainServiceWrapperAidl: MBrainServiceWrapper notifyEventToNativeService end
+04-21 14:56:30.310  3014  3014 D ControlCenterHeaderExpandController: onExpansionChanged: progress =  0.0
+04-21 14:56:30.310  1241  1241 E HwcComposer: presentOrValidateDisplay 0 presentFence:-1
+04-21 14:56:30.310  1117  1117 I hwcomposer: [DISP_DUMP] onSetJob(), NotifyDispDumpReady, client(2), dpy(0), buffer(0xb400007049440290), fence(103), period(16666667)  
+04-21 14:56:30.310  1117  1117 D libcomposer_ext: DeviceImplAidl::DeviceClientContextAidl::NotifyDispDumpReady(), client_handle:2, buffer:0xb400007049440290, fence:103, period16666667
+04-21 14:56:30.310  1768  2316 D libcomposer_ext: ClientCallbackAidl::asyncPerform(15)
+04-21 14:56:30.310  1768  2316 D libcomposer_ext: ClientImplAidl::ParseNotifyDispDumpReady()
+04-21 14:56:30.310  1465  3904 D WindowManager: Set transition=TransitionRecord{283be4f id=688 type=CLOSE flags=0x10 c=[
+04-21 14:56:30.310  1465  3904 D WindowManager:    ChangeInfo{62e49dc container=Task{11009aa #97 type=standard A=10412:com.example.yoshiitimekeeping} flags=0x0}
+04-21 14:56:30.310  1465  3904 D WindowManager:    ChangeInfo{85eaae5 container=Task{2baa70f #1 type=home} flags=0x0}
+04-21 14:56:30.310  1465  3904 D WindowManager:    ChangeInfo{a7eb9ba container=ActivityRecord{46899915 u0 com.miui.home/.launcher.Launcher t2} flags=0x0}
+04-21 14:56:30.310  1465  3904 D WindowManager:    ChangeInfo{467f06b container=Task{5030ebc #2 type=home I=com.miui.home/.launcher.Launcher} flags=0x0}

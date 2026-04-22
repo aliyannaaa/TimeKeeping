@@ -9,11 +9,11 @@
     <string name="job_title">UI/UX Designer</string>
     <string name="menu_description">Menu</string>
     <string name="current_time_label">Current Time</string>
-    <string name="location_info">Cebu City, Cebu IP 13131.832.06357</string>
+    <string name="location_info">Locating your current address...</string>
     <string name="time_out">Time Out</string>
     <string name="time_in">Time In</string>
     <string name="status_timed_in">You are currently timed in!</string>
-    <string name="status_clock_in_area">You are in the clock-in area!</string>
+    <string name="status_clock_in_area">You are inside the clock-in area.</string>
     <string name="instruction_clock_out">Now you can press clock out in this area</string>
     <string name="instruction_clock_in">Now you can press clock in this area</string>
     <string name="status_icon_description">Status Icon</string>

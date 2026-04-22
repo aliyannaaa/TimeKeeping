@@ -63,4 +63,10 @@ dependencies {
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
+
+    // Biometric authentication (fingerprint/face depending on enrolled Android biometrics)
+    implementation(libs.androidx.biometric)
+
+    // Background reminders (works when app is closed/backgrounded)
+    implementation(libs.androidx.work.runtime.ktx)
 }

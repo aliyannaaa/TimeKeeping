@@ -42,21 +42,85 @@ class TimekeeperRepository(
         api.getAllCredentials()
     }.mapFailure()
 
+    suspend fun enrollBiometric(
+        userId: Int,
+        biometricKey: String,
+        platform: String = "android"
+    ): Result<Credentials> = runCatching {
+        require(userId > 0) { "Invalid user id" }
+        val cleanedKey = biometricKey.trim()
+        require(cleanedKey.length in 16..255) { "Biometric key must be 16 to 255 characters" }
+        val cleanedPlatform = platform.trim().lowercase().ifEmpty { "android" }
+        require(cleanedPlatform == "android" || cleanedPlatform == "ios") {
+            "Platform must be android or ios"
+        }
+
+        api.enrollBiometric(
+            id = userId,
+            body = BiometricEnrollRequest(
+                biometric_key = cleanedKey,
+                platform = cleanedPlatform
+            )
+        )
+    }.mapFailure()
+
+    suspend fun loginWithBiometric(
+        biometricKey: String,
+        platform: String = "android"
+    ): Result<Credentials> = runCatching {
+        val cleanedKey = biometricKey.trim()
+        require(cleanedKey.length in 16..255) { "Biometric key must be 16 to 255 characters" }
+        val cleanedPlatform = platform.trim().lowercase().ifEmpty { "android" }
+        require(cleanedPlatform == "android" || cleanedPlatform == "ios") {
+            "Platform must be android or ios"
+        }
+
+        api.biometricLogin(
+            BiometricLoginRequest(
+                biometric_key = cleanedKey,
+                platform = cleanedPlatform
+            )
+        )
+    }.mapFailure()
+
+    suspend fun disableBiometric(userId: Int): Result<Credentials> = runCatching {
+        require(userId > 0) { "Invalid user id" }
+        api.disableBiometric(userId)
+    }.mapFailure()
+
     suspend fun logTime(
         userId: Int,
         action: ClockAction,
         eventTime: Long = System.currentTimeMillis(),
-        locationTimeIn: String? = null
+        locationTimeIn: String? = null,
+        actorUserId: Int? = null,
+        authMethod: String? = null,
+        deviceName: String? = null,
+        latitude: Double? = null,
+        longitude: Double? = null
     ): Result<LogTimeResponse> = runCatching {
         require(userId > 0) { "Invalid user id" }
         require(eventTime > 0) { "Invalid event_time" }
+        actorUserId?.let { require(it > 0) { "Invalid actor_user_id" } }
         val cleanedLocation = locationTimeIn?.trim()?.takeIf { it.isNotEmpty() }
+        val cleanedAuthMethod = authMethod?.trim()?.lowercase()?.takeIf { it.isNotEmpty() }
+        if (cleanedAuthMethod != null) {
+            require(cleanedAuthMethod in setOf("pin", "password", "biometric_key")) {
+                "auth_method must be pin, password, or biometric_key"
+            }
+        }
+        val cleanedDeviceName = deviceName?.trim()?.takeIf { it.isNotEmpty() }
         api.logTime(
             LogTimeRequest(
                 user_id = userId,
+                actor_user_id = actorUserId,
                 event_time = eventTime,
                 action = action.wireValue,
-                location_time_in = cleanedLocation
+                location_time_in = cleanedLocation,
+                auth_method = cleanedAuthMethod,
+                device_name = cleanedDeviceName,
+                latitude = latitude,
+                longitude = longitude
             )
         )
     }.mapFailure()
@@ -64,17 +128,47 @@ class TimekeeperRepository(
     suspend fun clockIn(
         userId: Int,
         timeIn: Long = System.currentTimeMillis(),
-        locationTimeIn: String? = null
+        locationTimeIn: String? = null,
+        actorUserId: Int? = null,
+        authMethod: String? = null,
+        deviceName: String? = null,
+        latitude: Double? = null,
+        longitude: Double? = null
     ): Result<LogTimeResponse> {
-        return logTime(userId, ClockAction.IN, timeIn, locationTimeIn)
+        return logTime(
+            userId = userId,
+            action = ClockAction.IN,
+            eventTime = timeIn,
+            locationTimeIn = locationTimeIn,
+            actorUserId = actorUserId,
+            authMethod = authMethod,
+            deviceName = deviceName,
+            latitude = latitude,
+            longitude = longitude
+        )
     }
 
     suspend fun clockOut(
         userId: Int,
         timeOut: Long = System.currentTimeMillis(),
-        locationTimeIn: String? = null
+        locationTimeIn: String? = null,
+        actorUserId: Int? = null,
+        authMethod: String? = null,
+        deviceName: String? = null,
+        latitude: Double? = null,
+        longitude: Double? = null
     ): Result<LogTimeResponse> {
-        return logTime(userId, ClockAction.OUT, timeOut, locationTimeIn)
+        return logTime(
+            userId = userId,
+            action = ClockAction.OUT,
+            eventTime = timeOut,
+            locationTimeIn = locationTimeIn,
+            actorUserId = actorUserId,
+            authMethod = authMethod,
+            deviceName = deviceName,
+            latitude = latitude,
+            longitude = longitude
+        )
     }
 
     suspend fun getClockState(userId: Int): Result<ClockStateResponse> = runCatching {
