@@ -726,7 +726,7 @@ fun ClockInScreen(
     var lastTimedOutReminderAtMs by remember { mutableStateOf(0L) }
 
     val timeFormatter = remember(use24HourFormat) {
-        val pattern = if (use24HourFormat) "HH:mm:ss" else "hh:mm:ss a"
+        val pattern = if (use24HourFormat) "HH:mm:ss a" else "hh:mm:ss a"
         SimpleDateFormat(pattern, Locale.getDefault())
     }
     val dateFormatter = SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault())
@@ -1043,9 +1043,6 @@ fun ClockInScreen(
                         .heightIn(max = 520.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    Text("Security")
-                    Spacer(modifier = Modifier.height(8.dp))
-
                     Text("Display")
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(
@@ -1065,7 +1062,7 @@ fun ClockInScreen(
                     }
 
                     Text(
-                        text = if (use24HourFormat) "Example: 14:30:00" else "Example: 02:30:00 PM",
+                        text = if (use24HourFormat) "Example: 14:30:00 PM" else "Example: 02:30:00 PM",
                         color = Color.Gray,
                         fontSize = 12.sp
                     )
@@ -1446,7 +1443,17 @@ fun ClockInScreen(
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(stringResource(id = R.string.current_time_label), fontSize = 16.sp, color = Color.Gray)
-                        Text(timeFormatter.format(currentTime), fontSize = 48.sp, fontWeight = FontWeight.Bold, color = mainThemeColor)
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = timeFormatter.format(currentTime),
+                            fontSize = 42.sp,
+                            lineHeight = 48.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = mainThemeColor,
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(dateFormatter.format(currentTime), fontSize = 14.sp, color = Color.Gray)
                     }
                 }
@@ -1516,7 +1523,19 @@ fun ClockInScreen(
             }
 
             if (showClockActionConfirmDialog) {
-                val actionText = if (shouldTimeOutAction) "Time Out" else "Time In"
+                val normalizedState = attendanceStateCode.uppercase(Locale.US)
+                val actionText = when {
+                    normalizedState == "OVERTIME_IN" -> "Overtime Out"
+                    normalizedState == "NORMAL_OUT" -> "Overtime In"
+                    shouldTimeOutAction -> "Time Out"
+                    else -> "Time In"
+                }
+                val confirmLabel = when (actionText) {
+                    "Overtime In" -> "Proceed Over Time In"
+                    "Overtime Out" -> "Proceed Over Time Out"
+                    "Time Out" -> "Proceed Time Out"
+                    else -> "Proceed Time In"
+                }
                 AlertDialog(
                     onDismissRequest = {
                         if (!isLoading) {
@@ -1525,27 +1544,36 @@ fun ClockInScreen(
                     },
                     title = { Text("Confirm $actionText") },
                     text = {
-                        Text("Are you sure you want to $actionText now? This extra step helps prevent accidental taps.")
+                        Text("Are you sure you want to $actionText now?")
                     },
                     confirmButton = {
-                        TextButton(
+                        OutlinedButton(
                             enabled = !isLoading,
                             onClick = {
                                 showClockActionConfirmDialog = false
                                 scope.launch {
                                     submitClockAction()
                                 }
-                            }
+                            },
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                                contentColor = MaterialTheme.colorScheme.primary
+                            )
                         ) {
-                            Text(actionText)
+                            Text(confirmLabel)
                         }
                     },
                     dismissButton = {
-                        TextButton(
+                        OutlinedButton(
                             enabled = !isLoading,
                             onClick = {
                                 showClockActionConfirmDialog = false
-                            }
+                            },
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.primary
+                            )
                         ) {
                             Text("Cancel")
                         }
@@ -1578,8 +1606,14 @@ fun ClockInScreen(
                         Text(
                             text = "Current State: $currentAttendanceStateLabel",
                             color = Color(0xFF23345B),
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 13.sp
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            modifier = Modifier
+                                .background(
+                                    color = statusCardAccent.copy(alpha = 0.12f),
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
@@ -1845,8 +1879,8 @@ private fun canManageAttendanceForOthers(user: User): Boolean {
     return title.contains("admin")
         || title.contains("administrator")
         || title.contains("human resource")
+        || title.contains("supervisor")
         || hasHrWord
-        || title.contains("manager")
         || login.startsWith("admin@")
         || login.startsWith("hr@")
 }
